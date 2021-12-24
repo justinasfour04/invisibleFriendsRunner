@@ -37,9 +37,12 @@ export default class Friend {
 
   private sprites: ImageBitmap[];
 
+  private moved: boolean;
+
   constructor(private ctx: CanvasRenderingContext2D | null) {
     this.minY = BOTTOM_FLOOR;
     this.sprites = [];
+    this.moved = false;
   }
 
   async init() {
@@ -76,7 +79,12 @@ export default class Friend {
   }
 
   update(buttonPressed: Set<Keys | undefined>) {
-    if (buttonPressed.has(Keys.DOWN)) {
+    if (this.moved && !buttonPressed.has(Keys.SPACE)) {
+      this.moved = false;
+    } else if (!this.moved && buttonPressed.has(Keys.SPACE)) {
+      this.minY = this.minY === BOTTOM_FLOOR ? TOP_FLOOR : BOTTOM_FLOOR;
+      this.moved = true;
+    } else if (buttonPressed.has(Keys.DOWN)) {
       this.minY = BOTTOM_FLOOR;
     } else if (buttonPressed.has(Keys.UP)) {
       this.minY = TOP_FLOOR;

@@ -3,6 +3,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
   entry: './src/index.ts',
+
   module: {
     rules: [
       {
@@ -27,6 +28,8 @@ module.exports = {
   plugins: [new HtmlWebpackPlugin({ template: './src/index.html', favicon: './static/img/favicon.ico' })],
   devServer: {
     static: './dist',
+    open: true,
+    port: 8080,
   },
   resolve: {
     extensions: ['.tsx', '.ts', '.js'],

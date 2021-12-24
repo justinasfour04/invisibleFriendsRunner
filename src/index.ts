@@ -33,7 +33,8 @@ container.appendChild(scoreDiv);
 container.appendChild(canvas);
 
 document.body.appendChild(container);
-const controller = new Controller();
+
+const controller = new Controller(canvas);
 const friend = new Friend(ctx);
 const gameBackgroud = new GameBackground(ctx, [0, canvas.width]);
 const bottomConeFloor = 390;
