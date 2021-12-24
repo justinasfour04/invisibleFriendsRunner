@@ -1,8 +1,12 @@
+@import url('https://fonts.googleapis.com/css?family=Heebo&display=swap');
+
 body {
   display: block;
+  background-color: rgb(180 202 217);
   box-sizing: border-box;
   font-size: 16px;
-  font-family: 'Futura';
+  font-weight: 700;
+  font-family: 'Heebo';
   overflow: scroll;
 }
 
@@ -22,4 +26,19 @@ body::-webkit-scrollbar {
 canvas {
   border: 5px black solid;
   border-radius: 15px;
+}
+
+.title {
+  flex-basis: 20%;
+  align-self: flex-start;
+  margin-left: 5%;
+  width: fit-content;
+}
+
+.score {
+  flex-basis: 5%;
+  align-self: flex-start;
+  margin-left: 5%;
+  width: fit-content;
+  margin-bottom: 10px;
 }

@@ -14,6 +14,22 @@ canvas.height = (document.body.clientHeight / 2);
 const container = document.createElement('div');
 container.className = 'container';
 
+const scoreDiv = document.createElement('div');
+scoreDiv.className = 'score';
+const score = document.createElement('p');
+score.innerText = 'Score: 0';
+score.style.fontSize = '25px';
+scoreDiv.appendChild(score);
+
+const titleDiv = document.createElement('div');
+titleDiv.className = 'title';
+const title = document.createElement('p');
+title.innerText = 'INVISIBLE FRIENDS RUNNER';
+title.style.fontSize = '40px';
+titleDiv.appendChild(title);
+
+container.appendChild(titleDiv);
+container.appendChild(scoreDiv);
 container.appendChild(canvas);
 
 document.body.appendChild(container);
