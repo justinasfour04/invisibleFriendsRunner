@@ -7,7 +7,7 @@ const keyMap = new Map([
   ['KeyS', Keys.DOWN],
   ['ArrowDown', Keys.DOWN],
 
-  ['Space', Keys.UP],
+  ['Space', Keys.SPACE],
 ]);
 
 export default class Controller {

@@ -1,10 +1,9 @@
-import Controller from './controller';
-
-import Spritesheet from '../assets/img/spritesheet.png';
+import Spritesheet from '../static/img/spritesheet.png';
 import Keys from './keys';
+import loadImage from './util';
 
-const BOTTOM_FLOOR = 350;
-const TOP_FLOOR = 250;
+const TOP_FLOOR = 200;
+const BOTTOM_FLOOR = 250;
 const spriteWidth = 280;
 const spriteHeight = 430;
 const frameCount = 18;
@@ -28,51 +27,59 @@ const spriteWidths = [
   185,
   243,
 ];
-const sprites: ImageBitmap[] = [];
 
-class Friend {
-  private controller: Controller;
-
+export default class Friend {
   private currentFrame = 0;
 
-  constructor(
-    private y: number,
-    private ctx: CanvasRenderingContext2D,
-  ) {
-    const spritesheet = new Image();
-    spritesheet.src = Spritesheet;
-    this.controller = new Controller();
-    spritesheet.onload = async () => {
-      sprites.concat(await Promise.all(
-        Array.from(
-          { length: frameCount },
-          (_, i) => createImageBitmap(
-            spritesheet,
-            (i % frameCount) * spriteWidth,
-            0,
-            spriteWidths[i % frameCount],
-            spriteHeight,
-            {
-              resizeQuality: 'high',
-              resizeHeight: 250,
-            },
-          ),
+  private frameCycle = 0;
+
+  private minY: number;
+
+  private sprites: ImageBitmap[];
+
+  constructor(private ctx: CanvasRenderingContext2D | null) {
+    this.minY = BOTTOM_FLOOR;
+    this.sprites = [];
+  }
+
+  async init() {
+    this.sprites = await Promise.all(
+      Array.from(
+        { length: frameCount },
+        (_, i) => loadImage(
+          Spritesheet,
+          (i % frameCount) * spriteWidth,
+          0,
+          spriteWidths[i % frameCount],
+          spriteHeight,
+          {
+            resizeQuality: 'high',
+            resizeHeight: 250,
+          },
         ),
-      ));
-    };
+      ),
+    );
   }
 
   draw() {
-    const image = sprites[this.currentFrame % frameCount];
-    if (this.controller.buttonPressed.has(Keys.DOWN)) {
-      this.y = BOTTOM_FLOOR;
-    } else if (this.controller.buttonPressed.has(Keys.UP)) {
-      this.y = TOP_FLOOR;
+    this.frameCycle += 1;
+    const image = this.sprites[this.currentFrame % frameCount];
+
+    if (this.ctx !== null) {
+      this.ctx.drawImage(image, 150, this.minY);
     }
-    this.ctx.drawImage(image, 150, this.y);
+
+    if (this.frameCycle > frameCount * 2) {
+      this.currentFrame += 1;
+      this.frameCycle = 0;
+    }
   }
 
-  update() {
-
+  update(buttonPressed: Set<Keys | undefined>) {
+    if (buttonPressed.has(Keys.DOWN)) {
+      this.minY = BOTTOM_FLOOR;
+    } else if (buttonPressed.has(Keys.UP)) {
+      this.minY = TOP_FLOOR;
+    }
   }
 }

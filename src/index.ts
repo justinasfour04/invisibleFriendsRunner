@@ -1,12 +1,11 @@
-import '../assets/stylesheet/index.css';
-import Spritesheet from '../assets/img/spritesheet.png';
-import Cone from '../assets/img/cone.png';
-import Background from '../assets/img/background.png';
+import '../static/stylesheet/index.css';
+import Cone from '../static/img/cone.png';
 
 import Controller from './controller';
-import Keys from './keys';
+import Friend from './friend';
+import loadImage from './util';
+import GameBackground from './gamebackground';
 
-// const sleep = (delay: number) => new Promise((resolve) => { setTimeout(resolve, delay); });
 const canvas = document.createElement('canvas');
 const ctx = canvas.getContext('2d');
 canvas.width = (document.body.clientWidth / 1.1);
@@ -19,76 +18,28 @@ container.appendChild(canvas);
 
 document.body.appendChild(container);
 const controller = new Controller();
-const bottomFriendFloor = 250;
-const topFriendFloor = 200;
+const friend = new Friend(ctx);
+const gameBackgroud = new GameBackground(ctx, [0, canvas.width]);
 const bottomConeFloor = 390;
 const topConeFloor = 355;
 
-const spriteWidths = [
-  246,
-  180,
-  211,
-  211,
-  197,
-  277,
-  216,
-  191,
-  230,
-  234,
-  208,
-  207,
-  273,
-  208,
-  195,
-  234,
-  185,
-  243,
-];
-const spritesheet = new Image();
-spritesheet.src = Spritesheet;
 const cone = new Image();
 cone.src = Cone;
-const backgroundImage = new Image();
-backgroundImage.src = Background;
 
-let sprites: ImageBitmap[];
 let topConeSprite: ImageBitmap;
 let bottomConeSprite: ImageBitmap;
-let background: ImageBitmap;
-const spriteWidth = 280;
-const spriteHeight = 430;
-const frameCount = 18;
 
-const fps = 10;
-const fpsInterval: number = 1000 / fps;
-const coneDx: number = -20;
-const backgroundDx = -6;
-const backgroundXs = [0, canvas.width];
+const coneDx: number = -200;
 const lineDash = [25, 30];
-let currentFrame = 0;
 let now: number;
 let then: number;
 let elapsed: number;
 let coneX = canvas.width;
-let floor = bottomFriendFloor;
-
-function drawFrame(image: ImageBitmap, buttonPressed: Set<Keys | undefined>): void {
-  if (buttonPressed.has(Keys.DOWN)) {
-    floor = bottomFriendFloor;
-  } else if (buttonPressed.has(Keys.UP)) {
-    floor = topFriendFloor;
-  }
-  ctx?.drawImage(image, 150, floor);
-}
 
 function update(secondsPassed: number = 1) {
+  friend.update(controller.buttonPressed);
+  gameBackgroud.update(secondsPassed);
   coneX += (coneDx * secondsPassed);
-  if (backgroundXs[1] <= 0) {
-    [backgroundXs[1], backgroundXs[0]] = [backgroundXs[0], backgroundXs[1]];
-    backgroundXs[1] = canvas.width;
-  }
-  backgroundXs[0] += (backgroundDx * secondsPassed);
-  backgroundXs[1] += (backgroundDx * secondsPassed);
 
   if (coneX < -20) {
     coneX = canvas.width;
@@ -123,52 +74,31 @@ async function draw() {
     ctx.fill();
     ctx.restore();
 
-    ctx.drawImage(background, backgroundXs[0], 0);
-    ctx.drawImage(background, backgroundXs[1], 0);
-    const image = sprites[currentFrame % frameCount];
-    drawFrame(image, controller.buttonPressed);
+    gameBackgroud.draw();
+    friend.draw();
 
     if (coneX > -20) {
       ctx.drawImage(topConeSprite, coneX + 300, topConeFloor);
       ctx.drawImage(bottomConeSprite, coneX, bottomConeFloor);
     }
-
-    currentFrame += 1;
   }
 }
 
 async function mainLoop(frameTime?: number) {
-  window.requestAnimationFrame(mainLoop);
   now = frameTime ?? window.performance.now();
-  elapsed = (now - then);
+  elapsed = (now - then) / 1000;
+  then = frameTime ?? window.performance.now();
 
-  then = now - (elapsed % fpsInterval);
+  update(Math.min(elapsed, 0.1));
+  await draw();
 
-  if (elapsed > fpsInterval) {
-    then = now - (elapsed % fpsInterval);
-
-    update();
-
-    await draw();
-  }
+  window.requestAnimationFrame(mainLoop);
 }
 
 then = window.performance.now();
-spritesheet.onload = async () => {
-  background = await createImageBitmap(
-    backgroundImage,
-    0,
-    0,
-    2560,
-    706,
-    {
-      resizeQuality: 'high',
-      resizeWidth: canvas.width + 60,
-      resizeHeight: 410,
-    },
-  );
-  bottomConeSprite = await createImageBitmap(
-    cone,
+(async () => {
+  bottomConeSprite = await loadImage(
+    Cone,
     0,
     0,
     321,
@@ -178,8 +108,8 @@ spritesheet.onload = async () => {
       resizeHeight: 125,
     },
   );
-  topConeSprite = await createImageBitmap(
-    cone,
+  topConeSprite = await loadImage(
+    Cone,
     0,
     0,
     321,
@@ -189,21 +119,7 @@ spritesheet.onload = async () => {
       resizeHeight: 100,
     },
   );
-  sprites = await Promise.all(
-    Array.from(
-      { length: frameCount },
-      (_, i) => createImageBitmap(
-        spritesheet,
-        (i % frameCount) * spriteWidth,
-        0,
-        spriteWidths[i % frameCount],
-        spriteHeight,
-        {
-          resizeQuality: 'high',
-          resizeHeight: 250,
-        },
-      ),
-    ),
-  );
+  await gameBackgroud.init();
+  await friend.init();
   await mainLoop();
-};
+})();
