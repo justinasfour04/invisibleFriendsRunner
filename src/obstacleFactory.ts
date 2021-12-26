@@ -30,16 +30,6 @@ export default class ObstacleFactory {
       }
     }
     this.obstacleCycleCount += 1;
-
-    const oldestTopObstacle = this.topFloorObstacleQueue[0];
-    if (oldestTopObstacle?.x < ZERO_X_POS) {
-      this.topFloorObstacleQueue.shift();
-    }
-
-    const oldestBottomObstacle = this.bottomFloorObstacleQueue[0];
-    if (oldestBottomObstacle?.x < ZERO_X_POS) {
-      this.bottomFloorObstacleQueue.shift();
-    }
   }
 
   drawTop() {
@@ -66,5 +56,13 @@ export default class ObstacleFactory {
 
   getClosestObstacle(isTopFloor: boolean) {
     return isTopFloor ? this.topFloorObstacleQueue[0] : this.bottomFloorObstacleQueue[0];
+  }
+
+  deleteOldestObstacle(isTopFloor: boolean) {
+    if (isTopFloor) {
+      this.topFloorObstacleQueue.shift();
+    } else {
+      this.bottomFloorObstacleQueue.shift();
+    }
   }
 }

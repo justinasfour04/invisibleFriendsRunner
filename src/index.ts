@@ -46,7 +46,6 @@ const obstacleFactory = new ObstacleFactory(ctx);
 const lineDash = [25, 30];
 let then: number;
 let elapsed: number;
-let pointScored = false;
 
 function update(secondsPassed: number = 1) {
   friend.update(controller.buttonPressed);
@@ -89,6 +88,31 @@ async function draw() {
   }
 }
 
+function setScore() {
+  const closestTopObstacle = obstacleFactory.getClosestObstacle(true);
+  const cloestBottomObstacle = obstacleFactory.getClosestObstacle(false);
+
+  const topObstaclePassed = friend.passedObstacle(closestTopObstacle);
+  const bottomObstaclePassed = friend.passedObstacle(cloestBottomObstacle);
+
+  const isCollision = friend.checkCollision(closestTopObstacle)
+    || friend.checkCollision(cloestBottomObstacle);
+
+  if ((topObstaclePassed || bottomObstaclePassed) && !isCollision) {
+    score += 1;
+    scoreValue.textContent = score.toString(10);
+    scoreText.innerHTML = `Score: ${scoreValue.innerHTML}`;
+  }
+
+  if (topObstaclePassed) {
+    obstacleFactory.deleteOldestObstacle(true);
+  }
+
+  if (bottomObstaclePassed) {
+    obstacleFactory.deleteOldestObstacle(false);
+  }
+}
+
 async function mainLoop(frameTime?: number) {
   if (frameTime) {
     if (!then) {
@@ -96,22 +120,9 @@ async function mainLoop(frameTime?: number) {
     }
     elapsed = (frameTime - then) / 1000;
 
+    setScore();
+
     update(Math.min(elapsed, 0.1));
-
-    const closestTopObstacle = obstacleFactory.getClosestObstacle(true);
-    const cloestBottomObstacle = obstacleFactory.getClosestObstacle(false);
-
-    const topPassed = friend.passedObstacle(closestTopObstacle);
-    const bottomPassed = friend.passedObstacle(cloestBottomObstacle);
-
-    const isCollision = friend.checkCollision(closestTopObstacle)
-      || friend.checkCollision(cloestBottomObstacle);
-
-    if ((topPassed || bottomPassed) && !isCollision) {
-      score += 1;
-      scoreValue.textContent = score.toString(10);
-      scoreText.innerHTML = `Score: ${scoreValue.innerHTML}`;
-    }
 
     obstacleFactory.create(randomNumber(0, 1000) % 2 === 0);
     await draw();

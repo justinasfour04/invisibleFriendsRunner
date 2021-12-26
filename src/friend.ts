@@ -15,6 +15,8 @@ export default class Friend {
 
   private minY: number;
 
+  private xPos: number;
+
   private moved: boolean;
 
   private currentImageInAnimation: ImageBitmap | null;
@@ -23,12 +25,13 @@ export default class Friend {
     this.minY = BOTTOM_FLOOR;
     this.moved = false;
     this.currentImageInAnimation = null;
+    this.xPos = ZERO_X_POS;
   }
 
   checkCollision(obstacle: Obstacle | undefined) {
     if (this.currentImageInAnimation !== null && obstacle !== undefined) {
-      const distanceFromObstacle = this.currentImageInAnimation.width - obstacle.x;
-      if (distanceFromObstacle > 0 && obstacle.x > 0) {
+      const distanceFromObstacle = this.xPos + this.currentImageInAnimation.width - obstacle.x;
+      if (distanceFromObstacle > 0) {
         if (
           (obstacle.isTopFloor && this.minY === TOP_FLOOR)
           || (!obstacle.isTopFloor && this.minY === BOTTOM_FLOOR)
@@ -43,8 +46,8 @@ export default class Friend {
 
   passedObstacle(obstacle: Obstacle | undefined) {
     if (this.currentImageInAnimation !== null && obstacle !== undefined) {
-      const distanceFromObstacle = this.currentImageInAnimation.width - (obstacle.x + obstacle.w);
-      if (distanceFromObstacle > 0 && obstacle.x > 0 && obstacle.passed) {
+      const distanceFromObstacle = this.xPos - (obstacle.x + obstacle.w);
+      if (distanceFromObstacle > 0) {
         if (
           (obstacle.isTopFloor && this.minY === BOTTOM_FLOOR)
           || (!obstacle.isTopFloor && this.minY === TOP_FLOOR)
@@ -63,7 +66,7 @@ export default class Friend {
     this.currentImageInAnimation = sprites[this.currentFrame % FRAME_COUNT];
 
     if (this.ctx !== null) {
-      this.ctx.drawImage(this.currentImageInAnimation, ZERO_X_POS, this.minY);
+      this.ctx.drawImage(this.currentImageInAnimation, this.xPos, this.minY);
     }
 
     if (this.frameCycle > FRAME_COUNT) {
