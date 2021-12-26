@@ -1,32 +1,12 @@
-import Spritesheet from '../static/img/spritesheet.png';
+import {
+  BOTTOM_FLOOR,
+  FRAME_COUNT,
+  TOP_FLOOR,
+  ZERO_X_POS,
+} from './constant';
+import ImageCache, { CacheKey } from './imageCache';
 import Keys from './keys';
-import loadImage from './util';
-
-const TOP_FLOOR = 200;
-const BOTTOM_FLOOR = 250;
-const spriteWidth = 280;
-const spriteHeight = 430;
-const frameCount = 18;
-const spriteWidths = [
-  246,
-  180,
-  211,
-  211,
-  197,
-  277,
-  216,
-  191,
-  230,
-  234,
-  208,
-  207,
-  273,
-  208,
-  195,
-  234,
-  185,
-  243,
-];
+import Obstacle from './obstacle';
 
 export default class Friend {
   private currentFrame = 0;
@@ -35,44 +15,58 @@ export default class Friend {
 
   private minY: number;
 
-  private sprites: ImageBitmap[];
-
   private moved: boolean;
+
+  private currentImageInAnimation: ImageBitmap | null;
 
   constructor(private ctx: CanvasRenderingContext2D | null) {
     this.minY = BOTTOM_FLOOR;
-    this.sprites = [];
     this.moved = false;
+    this.currentImageInAnimation = null;
   }
 
-  async init() {
-    this.sprites = await Promise.all(
-      Array.from(
-        { length: frameCount },
-        (_, i) => loadImage(
-          Spritesheet,
-          (i % frameCount) * spriteWidth,
-          0,
-          spriteWidths[i % frameCount],
-          spriteHeight,
-          {
-            resizeQuality: 'high',
-            resizeHeight: 250,
-          },
-        ),
-      ),
-    );
+  checkCollision(obstacle: Obstacle | undefined) {
+    if (this.currentImageInAnimation !== null && obstacle !== undefined) {
+      const distanceFromObstacle = this.currentImageInAnimation.width - obstacle.x;
+      if (distanceFromObstacle > 0 && obstacle.x > 0) {
+        if (
+          (obstacle.isTopFloor && this.minY === TOP_FLOOR)
+          || (!obstacle.isTopFloor && this.minY === BOTTOM_FLOOR)
+        ) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
+
+  passedObstacle(obstacle: Obstacle | undefined) {
+    if (this.currentImageInAnimation !== null && obstacle !== undefined) {
+      const distanceFromObstacle = this.currentImageInAnimation.width - (obstacle.x + obstacle.w);
+      if (distanceFromObstacle > 0 && obstacle.x > 0 && obstacle.passed) {
+        if (
+          (obstacle.isTopFloor && this.minY === BOTTOM_FLOOR)
+          || (!obstacle.isTopFloor && this.minY === TOP_FLOOR)
+        ) {
+          return true;
+        }
+      }
+    }
+
+    return false;
   }
 
   draw() {
     this.frameCycle += 1;
-    const image = this.sprites[this.currentFrame % frameCount];
+    const sprites = ImageCache.getImage(CacheKey.SPRITES) as ImageBitmap[];
+    this.currentImageInAnimation = sprites[this.currentFrame % FRAME_COUNT];
 
     if (this.ctx !== null) {
-      this.ctx.drawImage(image, 150, this.minY);
+      this.ctx.drawImage(this.currentImageInAnimation, ZERO_X_POS, this.minY);
     }
 
-    if (this.frameCycle > frameCount) {
+    if (this.frameCycle > FRAME_COUNT) {
       this.currentFrame += 1;
       this.frameCycle = 0;
     }

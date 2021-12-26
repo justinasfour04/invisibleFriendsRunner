@@ -1,4 +1,4 @@
-export default async function loadImage(
+export async function loadImage(
   image: string,
   sx: number,
   sy: number,
@@ -22,4 +22,12 @@ export default async function loadImage(
       resolve(bitmapImage);
     };
   });
+}
+
+export function randomNumber(a: number, b: number) {
+  const min = a > b ? b : a;
+  const max = a > b ? a : b;
+  // Use below if final number doesn't need to be whole number
+  // return Math.random() * (max - min + 1) + min;
+  return Math.floor(Math.random() * (max - min + 1) + min);
 }

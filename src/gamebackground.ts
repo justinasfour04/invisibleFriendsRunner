@@ -1,37 +1,22 @@
-import Background from '../static/img/background.png';
-import loadImage from './util';
+import ImageCache, { CacheKey } from './imageCache';
 
-const VELOCITY = -60;
+const VELOCITY = -75;
 
 export default class GameBackground {
   private startingX: number;
 
-  private gameBackground: ImageBitmap | null;
-
-  constructor(private ctx: CanvasRenderingContext2D | null, private xPos: [number, number]) {
+  constructor(
+    private ctx: CanvasRenderingContext2D | null,
+    private xPos: [number, number],
+  ) {
     [, this.startingX] = xPos;
-    this.gameBackground = null;
-  }
-
-  async init() {
-    this.gameBackground = await loadImage(
-      Background,
-      0,
-      0,
-      2560,
-      706,
-      {
-        resizeQuality: 'high',
-        resizeWidth: this.startingX + 60,
-        resizeHeight: 410,
-      },
-    );
   }
 
   draw() {
-    if (this.ctx !== null && this.gameBackground !== null) {
-      this.ctx.drawImage(this.gameBackground, this.xPos[0], 0);
-      this.ctx.drawImage(this.gameBackground, this.xPos[1], 0);
+    const gameBackground = ImageCache.getImage(CacheKey.BACKGROUND) as ImageBitmap;
+    if (this.ctx !== null) {
+      this.ctx.drawImage(gameBackground, this.xPos[0], 0);
+      this.ctx.drawImage(gameBackground, this.xPos[1], 0);
     }
   }
 
