@@ -160,7 +160,7 @@ async function mainLoop(frameTime?: number) {
 }
 
 (async () => {
-  highscore = parseInt(localStorage.getItem('highscore') ?? highscore.toString(0), 10);
+  highscore = parseInt(localStorage.getItem('highscore') ?? highscore.toString(10), 10);
   highscoreValue.textContent = highscore.toString(10);
   highscoreText.innerHTML = `High Score: ${highscoreValue.innerHTML}`;
   await ImageCache.loadAllImages(canvas);
