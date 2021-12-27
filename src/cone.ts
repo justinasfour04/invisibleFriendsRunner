@@ -2,7 +2,7 @@ import { BOTTOM_OBSTACLE, TOP_OBSTACLE } from './constant';
 import ImageCache, { CacheKey } from './imageCache';
 import Obstacle from './obstacle';
 
-const VELOCITY = -150;
+const VELOCITY = -225;
 
 export default class Cone extends Obstacle {
   constructor(ctx: CanvasRenderingContext2D, isTopFloor: boolean) {

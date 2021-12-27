@@ -39,6 +39,17 @@ canvas {
   flex-basis: 5%;
   align-self: flex-start;
   margin-left: 5%;
-  width: fit-content;
+  width: 300px;
   margin-bottom: 10px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.scoreText {
+  font-size: 25px;
+}
+
+.titleText {
+  font-size: 40px;
 }

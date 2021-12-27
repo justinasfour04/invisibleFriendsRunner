@@ -18,19 +18,27 @@ container.className = 'container';
 const scoreDiv = document.createElement('div');
 scoreDiv.className = 'score';
 const scoreText = document.createElement('p');
+scoreText.className = 'scoreText';
+const highscoreText = document.createElement('p');
+highscoreText.className = 'scoreText';
+
 let score = 0;
+let highscore = 0;
 const scoreValue = document.createElement('span');
 scoreValue.textContent = score.toString(10);
 scoreText.innerHTML = `Score: ${scoreValue.innerHTML}`;
-scoreText.style.fontSize = '25px';
+
+const highscoreValue = document.createElement('span');
+
 scoreDiv.appendChild(scoreText);
+scoreDiv.appendChild(highscoreText);
 
 const titleDiv = document.createElement('div');
 titleDiv.className = 'title';
-const title = document.createElement('p');
-title.innerText = 'INVISIBLE FRIENDS RUNNER';
-title.style.fontSize = '40px';
-titleDiv.appendChild(title);
+const titleText = document.createElement('p');
+titleText.className = 'titleText';
+titleText.innerText = 'INVISIBLE FRIENDS RUNNER';
+titleDiv.appendChild(titleText);
 
 container.appendChild(titleDiv);
 container.appendChild(scoreDiv);
@@ -46,6 +54,10 @@ const obstacleFactory = new ObstacleFactory(ctx);
 const lineDash = [25, 30];
 let then: number;
 let elapsed: number;
+
+function saveHighscore() {
+  localStorage.setItem('highscore', Math.max(score, highscore).toString(10));
+}
 
 function update(secondsPassed: number = 1) {
   friend.update(controller.buttonPressed);
@@ -113,12 +125,25 @@ function setScore() {
   }
 }
 
+function isGameOver() {
+  const closestTopObstacle = obstacleFactory.getClosestObstacle(true);
+  const cloestBottomObstacle = obstacleFactory.getClosestObstacle(false);
+  return friend.checkCollision(closestTopObstacle)
+    || friend.checkCollision(cloestBottomObstacle);
+}
+
 async function mainLoop(frameTime?: number) {
   if (frameTime) {
     if (!then) {
       then = frameTime;
     }
     elapsed = (frameTime - then) / 1000;
+
+    if (isGameOver()) {
+      console.log('gameover');
+      saveHighscore();
+      return;
+    }
 
     setScore();
 
@@ -135,6 +160,9 @@ async function mainLoop(frameTime?: number) {
 }
 
 (async () => {
+  highscore = parseInt(localStorage.getItem('highscore') ?? highscore.toString(0), 10);
+  highscoreValue.textContent = highscore.toString(10);
+  highscoreText.innerHTML = `High Score: ${highscoreValue.innerHTML}`;
   await ImageCache.loadAllImages(canvas);
   await mainLoop();
 })();
