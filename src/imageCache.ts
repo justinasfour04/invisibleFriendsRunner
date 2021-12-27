@@ -1,6 +1,7 @@
 import ConePng from '../static/img/cone.png';
 import Spritesheet from '../static/img/spritesheet.png';
 import Background from '../static/img/background.png';
+import Clouds from '../static/img/clouds.png';
 import { loadImage } from './util';
 import {
   FRAME_COUNT,
@@ -16,6 +17,7 @@ export enum CacheKey {
   BOTTOM_CONE,
   BACKGROUND,
   SPRITES,
+  CLOUDS,
 }
 
 const cache: Map<CacheKey, CacheValue> = new Map();
@@ -74,6 +76,19 @@ export default class ImageCache {
           },
         ),
       ),
+    ));
+
+    cache.set(CacheKey.CLOUDS, await loadImage(
+      Clouds,
+      0,
+      0,
+      397,
+      189,
+      {
+        resizeQuality: 'high',
+        resizeWidth: canvas.width + 60,
+        resizeHeight: 410,
+      },
     ));
   }
 

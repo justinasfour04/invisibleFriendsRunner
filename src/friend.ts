@@ -60,6 +60,15 @@ export default class Friend {
     return false;
   }
 
+  reset() {
+    this.frameCycle = 0;
+    this.currentFrame = 0;
+    this.minY = BOTTOM_FLOOR;
+    this.moved = false;
+    this.currentImageInAnimation = null;
+    this.xPos = ZERO_X_POS;
+  }
+
   draw() {
     this.frameCycle += 1;
     const sprites = ImageCache.getImage(CacheKey.SPRITES) as ImageBitmap[];

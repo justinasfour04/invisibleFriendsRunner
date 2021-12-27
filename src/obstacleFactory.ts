@@ -16,6 +16,12 @@ export default class ObstacleFactory {
     this.obstacleCycleCount = 0;
   }
 
+  reset() {
+    this.topFloorObstacleQueue = [];
+    this.bottomFloorObstacleQueue = [];
+    this.obstacleCycleCount = 0;
+  }
+
   create(isTopFloor: boolean) {
     if (this.ctx !== null) {
       if (this.obstacleCycleCount >= OBSTACLE_CYCLE) {

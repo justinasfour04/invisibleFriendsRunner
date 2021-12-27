@@ -3,6 +3,7 @@ import '../static/stylesheet/index.css';
 import Controller from './controller';
 import Friend from './friend';
 import GameBackground from './gamebackground';
+import GameState from './gameState';
 import ImageCache from './imageCache';
 import ObstacleFactory from './obstacleFactory';
 import { randomNumber } from './util';
@@ -12,40 +13,7 @@ const ctx = canvas.getContext('2d');
 canvas.width = (document.body.clientWidth / 1.1);
 canvas.height = (document.body.clientHeight / 2);
 
-const container = document.createElement('div');
-container.className = 'container';
-
-const scoreDiv = document.createElement('div');
-scoreDiv.className = 'score';
-const scoreText = document.createElement('p');
-scoreText.className = 'scoreText';
-const highscoreText = document.createElement('p');
-highscoreText.className = 'scoreText';
-
-let score = 0;
-let highscore = 0;
-const scoreValue = document.createElement('span');
-scoreValue.textContent = score.toString(10);
-scoreText.innerHTML = `Score: ${scoreValue.innerHTML}`;
-
-const highscoreValue = document.createElement('span');
-
-scoreDiv.appendChild(scoreText);
-scoreDiv.appendChild(highscoreText);
-
-const titleDiv = document.createElement('div');
-titleDiv.className = 'title';
-const titleText = document.createElement('p');
-titleText.className = 'titleText';
-titleText.innerText = 'INVISIBLE FRIENDS RUNNER';
-titleDiv.appendChild(titleText);
-
-container.appendChild(titleDiv);
-container.appendChild(scoreDiv);
-container.appendChild(canvas);
-
-document.body.appendChild(container);
-
+const gameState = new GameState();
 const controller = new Controller(canvas);
 const friend = new Friend(ctx);
 const gameBackgroud = new GameBackground(ctx, [0, canvas.width]);
@@ -56,7 +24,7 @@ let then: number;
 let elapsed: number;
 
 function saveHighscore() {
-  localStorage.setItem('highscore', Math.max(score, highscore).toString(10));
+  localStorage.setItem('highscore', Math.max(gameState.score, gameState.highscore).toString(10));
 }
 
 function update(secondsPassed: number = 1) {
@@ -100,6 +68,137 @@ async function draw() {
   }
 }
 
+function drawGameScreen() {
+  document.body.firstElementChild?.remove();
+  const container = document.createElement('div');
+  container.className = 'container';
+
+  const scoreDiv = document.createElement('div');
+  scoreDiv.className = 'score';
+
+  const scoreText = document.createElement('p');
+  scoreText.className = 'scoreText';
+  scoreText.id = '_score';
+
+  const highscoreText = document.createElement('p');
+  highscoreText.className = 'scoreText';
+  highscoreText.id = '_highscore';
+
+  scoreDiv.appendChild(scoreText);
+  scoreDiv.appendChild(highscoreText);
+
+  const titleDiv = document.createElement('div');
+  titleDiv.className = 'title';
+  const titleText = document.createElement('p');
+  titleText.className = 'titleText';
+  titleText.innerText = 'INVISIBLE FRIENDS RUNNER';
+  titleDiv.appendChild(titleText);
+
+  container.appendChild(titleDiv);
+  container.appendChild(scoreDiv);
+  container.appendChild(canvas);
+
+  document.body.appendChild(container);
+}
+
+function drawGameMenu() {
+  document.body.firstElementChild?.remove();
+  const container = document.createElement('div');
+  container.className = 'container';
+
+  const menuTitle = document.createElement('p');
+  menuTitle.className = 'menu_title';
+  menuTitle.innerText = 'INVISIBLE FRIENDS RUNNER';
+
+  const startButton = document.createElement('button');
+  startButton.className = 'action_button';
+  startButton.textContent = 'START';
+  startButton.addEventListener('mouseover', () => {
+    startButton.textContent = 'BING BONG';
+  });
+  startButton.addEventListener('mouseleave', () => {
+    startButton.textContent = 'START';
+  });
+  startButton.addEventListener('click', () => {
+    gameState.isGameMenuDrawn = false;
+    gameState.isGameScreenDrawn = false;
+    gameState.isGameOverDrawn = false;
+    gameState.isInMenu = false;
+    gameState.isGameRunning = true;
+    gameState.isGameOver = false;
+  });
+
+  startButton.addEventListener('touchstart', (event) => {
+    event.preventDefault();
+    startButton.textContent = 'BING BONG';
+  });
+  startButton.addEventListener('touchmove', (event) => {
+    event.preventDefault();
+  });
+  startButton.addEventListener('touchend', (event) => {
+    event.preventDefault();
+    gameState.isGameMenuDrawn = false;
+    gameState.isGameScreenDrawn = false;
+    gameState.isGameOverDrawn = false;
+    gameState.isInMenu = false;
+    gameState.isGameRunning = true;
+    gameState.isGameOver = false;
+  });
+
+  container.appendChild(menuTitle);
+  container.appendChild(startButton);
+  document.body.appendChild(container);
+}
+
+function drawGameOverScreen() {
+  document.body.firstElementChild?.remove();
+  const container = document.createElement('div');
+  container.className = 'container';
+
+  const gameoverTitle = document.createElement('p');
+  gameoverTitle.className = 'menu_title';
+  gameoverTitle.innerText = 'GAME OVER!!!!';
+
+  const playagainButton = document.createElement('button');
+  playagainButton.className = 'action_button';
+  playagainButton.textContent = 'PLAY AGAIN';
+  playagainButton.addEventListener('mouseover', () => {
+    playagainButton.textContent = 'BING BONG';
+  });
+  playagainButton.addEventListener('mouseleave', () => {
+    playagainButton.textContent = 'START';
+  });
+  playagainButton.addEventListener('click', () => {
+    gameState.isGameMenuDrawn = false;
+    gameState.isGameScreenDrawn = false;
+    gameState.isGameOverDrawn = false;
+    gameState.isInMenu = false;
+    gameState.isGameRunning = true;
+    gameState.isGameOver = false;
+  });
+
+  playagainButton.addEventListener('touchstart', (event) => {
+    event.preventDefault();
+    playagainButton.textContent = 'BING BONG';
+  });
+  playagainButton.addEventListener('touchmove', (event) => {
+    event.preventDefault();
+  });
+  playagainButton.addEventListener('touchend', (event) => {
+    event.preventDefault();
+    gameState.isGameMenuDrawn = false;
+    gameState.isGameScreenDrawn = false;
+    gameState.isGameOverDrawn = false;
+    gameState.isInMenu = false;
+    gameState.isGameRunning = true;
+    gameState.isGameOver = false;
+  });
+
+  container.appendChild(gameoverTitle);
+  container.appendChild(playagainButton);
+  document.body.appendChild(container);
+}
+
 function setScore() {
   const closestTopObstacle = obstacleFactory.getClosestObstacle(true);
   const cloestBottomObstacle = obstacleFactory.getClosestObstacle(false);
@@ -111,9 +210,7 @@ function setScore() {
     || friend.checkCollision(cloestBottomObstacle);
 
   if ((topObstaclePassed || bottomObstaclePassed) && !isCollision) {
-    score += 1;
-    scoreValue.textContent = score.toString(10);
-    scoreText.innerHTML = `Score: ${scoreValue.innerHTML}`;
+    gameState.score += 1;
   }
 
   if (topObstaclePassed) {
@@ -123,13 +220,33 @@ function setScore() {
   if (bottomObstaclePassed) {
     obstacleFactory.deleteOldestObstacle(false);
   }
+
+  const highscoreValue = document.createElement('span');
+  highscoreValue.textContent = gameState.highscore.toString(10);
+  const highscore = document.getElementById('_highscore');
+  if (highscore) {
+    highscore.innerHTML = `High Score: ${highscoreValue.innerHTML}`;
+  }
+
+  const scoreValue = document.createElement('span');
+  scoreValue.textContent = gameState.score.toString(10);
+  const score = document.getElementById('_score');
+  if (score) {
+    score.innerHTML = `Score: ${scoreValue.innerHTML}`;
+  }
 }
 
-function isGameOver() {
+function youCrashed() {
   const closestTopObstacle = obstacleFactory.getClosestObstacle(true);
   const cloestBottomObstacle = obstacleFactory.getClosestObstacle(false);
   return friend.checkCollision(closestTopObstacle)
     || friend.checkCollision(cloestBottomObstacle);
+}
+
+function resetGame() {
+  friend.reset();
+  gameBackgroud.reset();
+  obstacleFactory.reset();
 }
 
 async function mainLoop(frameTime?: number) {
@@ -139,18 +256,34 @@ async function mainLoop(frameTime?: number) {
     }
     elapsed = (frameTime - then) / 1000;
 
-    if (isGameOver()) {
-      console.log('gameover');
-      saveHighscore();
-      return;
+    if (gameState.isGameRunning) {
+      if (!gameState.isGameScreenDrawn) {
+        drawGameScreen();
+        gameState.isGameScreenDrawn = true;
+      }
+
+      if (youCrashed()) {
+        saveHighscore();
+        resetGame();
+        gameState.isGameOver = true;
+        gameState.isGameRunning = false;
+      } else {
+        setScore();
+        update(Math.min(elapsed, 0.1));
+        obstacleFactory.create(randomNumber(0, 1000) % 2 === 0);
+        await draw();
+      }
+    } else if (gameState.isGameOver) {
+      if (!gameState.isGameOverDrawn) {
+        drawGameOverScreen();
+        gameState.isGameOverDrawn = true;
+      }
+    } else if (gameState.isInMenu) {
+      if (!gameState.isGameMenuDrawn) {
+        drawGameMenu();
+        gameState.isGameMenuDrawn = true;
+      }
     }
-
-    setScore();
-
-    update(Math.min(elapsed, 0.1));
-
-    obstacleFactory.create(randomNumber(0, 1000) % 2 === 0);
-    await draw();
 
     then = frameTime;
     window.requestAnimationFrame(mainLoop);
@@ -160,9 +293,6 @@ async function mainLoop(frameTime?: number) {
 }
 
 (async () => {
-  highscore = parseInt(localStorage.getItem('highscore') ?? highscore.toString(10), 10);
-  highscoreValue.textContent = highscore.toString(10);
-  highscoreText.innerHTML = `High Score: ${highscoreValue.innerHTML}`;
   await ImageCache.loadAllImages(canvas);
   await mainLoop();
 })();
