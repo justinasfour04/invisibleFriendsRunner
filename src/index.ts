@@ -244,6 +244,8 @@ function youCrashed() {
 }
 
 function resetGame() {
+  gameState.score = 0;
+  gameState.highscore = parseInt(localStorage.getItem('highscore') ?? '0', 10);
   friend.reset();
   gameBackgroud.reset();
   obstacleFactory.reset();

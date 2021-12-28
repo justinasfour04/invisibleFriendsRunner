@@ -1,7 +1,7 @@
 import Cone from './cone';
 import Obstacle from './obstacle';
 
-const OBSTACLE_CYCLE = 300;
+const OBSTACLE_CYCLE = 200;
 
 export default class ObstacleFactory {
   private obstacleCycleCount: number;
