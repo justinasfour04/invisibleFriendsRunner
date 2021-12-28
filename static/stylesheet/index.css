@@ -4,7 +4,7 @@ body {
   display: block;
   background-color: rgb(180 202 217);
   box-sizing: border-box;
-  font-size: 16px;
+  font-size: 1em;
   font-weight: 700;
   font-family: 'Heebo';
   overflow: scroll;
@@ -92,17 +92,17 @@ canvas {
 }
 
 .title {
-  flex-basis: 20%;
   align-self: flex-start;
   margin-left: 5%;
   width: fit-content;
 }
 
 .score {
-  flex-basis: 5%;
+  position: relative;
+  top: 60px;
   align-self: flex-start;
-  margin-left: 5%;
-  width: 300px;
+  margin: 5px 0px 5px 5%;
+  width: 20rem;
   margin-bottom: 10px;
   display: flex;
   flex-direction: row;
@@ -110,9 +110,11 @@ canvas {
 }
 
 .scoreText {
-  font-size: 25px;
+  margin: 0px;
+  color: #fff;
+  font-size: 1.5rem;
 }
 
 .titleText {
-  font-size: 40px;
+  font-size: 3rem;
 }

@@ -8,6 +8,8 @@ export default class ObstacleFactory {
 
   private topFloorObstacleQueue: Array<Obstacle>;
 
+  // private middleFloorObstacleQueue: Array<Obstacle>;
+
   private bottomFloorObstacleQueue: Array<Obstacle>;
 
   constructor(private ctx: CanvasRenderingContext2D | null) {

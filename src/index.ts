@@ -11,7 +11,7 @@ import { randomNumber } from './util';
 const canvas = document.createElement('canvas');
 const ctx = canvas.getContext('2d');
 canvas.width = (document.body.clientWidth / 1.1);
-canvas.height = (document.body.clientHeight / 2);
+canvas.height = (document.body.clientHeight / 1.2);
 
 const gameState = new GameState();
 const controller = new Controller(canvas);
@@ -87,14 +87,6 @@ function drawGameScreen() {
   scoreDiv.appendChild(scoreText);
   scoreDiv.appendChild(highscoreText);
 
-  const titleDiv = document.createElement('div');
-  titleDiv.className = 'title';
-  const titleText = document.createElement('p');
-  titleText.className = 'titleText';
-  titleText.innerText = 'INVISIBLE FRIENDS RUNNER';
-  titleDiv.appendChild(titleText);
-
-  container.appendChild(titleDiv);
   container.appendChild(scoreDiv);
   container.appendChild(canvas);
 
@@ -166,7 +158,7 @@ function drawGameOverScreen() {
     playagainButton.textContent = 'BING BONG';
   });
   playagainButton.addEventListener('mouseleave', () => {
-    playagainButton.textContent = 'START';
+    playagainButton.textContent = 'PLAY AGAIN';
   });
   playagainButton.addEventListener('click', () => {
     gameState.isGameMenuDrawn = false;
