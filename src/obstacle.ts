@@ -1,3 +1,5 @@
+import { LanePositionsTypes } from './constant';
+
 export default abstract class Obstacle {
   private xPos: number | undefined;
 
@@ -5,7 +7,8 @@ export default abstract class Obstacle {
     protected ctx: CanvasRenderingContext2D,
     private width: number,
     private dx: number,
-    private currentFloor: 1 | 2,
+    private currentLane: LanePositionsTypes,
+    private yPos: number,
   ) {
     this.xPos = ctx?.canvas.width;
   }
@@ -22,6 +25,10 @@ export default abstract class Obstacle {
     return this.xPos as number;
   }
 
+  get y() {
+    return this.yPos;
+  }
+
   set velocity(v: number) {
     this.dx = v;
   }
@@ -30,12 +37,12 @@ export default abstract class Obstacle {
     return this.dx;
   }
 
-  get isTopFloor(): boolean {
-    return this.currentFloor === 1;
+  get lane(): LanePositionsTypes {
+    return this.currentLane;
   }
 
-  set isTopFloor(value: boolean) {
-    this.currentFloor = value ? 1 : 2;
+  set lane(current: LanePositionsTypes) {
+    this.currentLane = current;
   }
 
   abstract draw(): void;

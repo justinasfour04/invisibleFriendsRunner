@@ -14,6 +14,7 @@ type CacheValue = ImageBitmap | Array<ImageBitmap>;
 
 export enum CacheKey {
   TOP_CONE,
+  MIDDLE_CONE,
   BOTTOM_CONE,
   BACKGROUND,
   SPRITES,
@@ -32,7 +33,19 @@ export default class ImageCache {
       400,
       {
         resizeQuality: 'high',
-        resizeHeight: 100,
+        resizeHeight: (canvas.height / 10),
+      },
+    ));
+
+    cache.set(CacheKey.MIDDLE_CONE, await loadImage(
+      ConePng,
+      0,
+      0,
+      321,
+      400,
+      {
+        resizeQuality: 'high',
+        resizeHeight: (canvas.height / 9),
       },
     ));
 
@@ -44,7 +57,7 @@ export default class ImageCache {
       400,
       {
         resizeQuality: 'high',
-        resizeHeight: 125,
+        resizeHeight: (canvas.height / 8),
       },
     ));
 
@@ -57,7 +70,20 @@ export default class ImageCache {
       {
         resizeQuality: 'high',
         resizeWidth: canvas.width + 60,
-        resizeHeight: 410,
+        resizeHeight: 13 * (canvas.height / 16),
+      },
+    ));
+
+    cache.set(CacheKey.CLOUDS, await loadImage(
+      Clouds,
+      0,
+      0,
+      397,
+      189,
+      {
+        resizeQuality: 'high',
+        resizeWidth: canvas.width + 60,
+        resizeHeight: 13 * (canvas.height / 16),
       },
     ));
 
@@ -72,23 +98,10 @@ export default class ImageCache {
           SPRITE_HEIGHT,
           {
             resizeQuality: 'high',
-            resizeHeight: 250,
+            resizeHeight: (canvas.height / 4),
           },
         ),
       ),
-    ));
-
-    cache.set(CacheKey.CLOUDS, await loadImage(
-      Clouds,
-      0,
-      0,
-      397,
-      189,
-      {
-        resizeQuality: 'high',
-        resizeWidth: canvas.width + 60,
-        resizeHeight: 410,
-      },
     ));
   }
 

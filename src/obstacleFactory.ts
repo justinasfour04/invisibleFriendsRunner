@@ -1,4 +1,5 @@
 import Cone from './cone';
+import { LanePositionsTypes } from './constant';
 import Obstacle from './obstacle';
 
 const OBSTACLE_CYCLE = 200;
@@ -6,70 +7,69 @@ const OBSTACLE_CYCLE = 200;
 export default class ObstacleFactory {
   private obstacleCycleCount: number;
 
-  private topFloorObstacleQueue: Array<Obstacle>;
+  private queues: Map<LanePositionsTypes, Array<Obstacle>>;
 
-  // private middleFloorObstacleQueue: Array<Obstacle>;
-
-  private bottomFloorObstacleQueue: Array<Obstacle>;
-
-  constructor(private ctx: CanvasRenderingContext2D | null) {
-    this.topFloorObstacleQueue = [];
-    this.bottomFloorObstacleQueue = [];
+  constructor(private ctx: CanvasRenderingContext2D | null, private lanePositions: number[]) {
+    this.queues = new Map([
+      [LanePositionsTypes.TOP, []],
+      [LanePositionsTypes.MIDDLE, []],
+      [LanePositionsTypes.BOTTOM, []],
+    ]);
     this.obstacleCycleCount = 0;
   }
 
   reset() {
-    this.topFloorObstacleQueue = [];
-    this.bottomFloorObstacleQueue = [];
+    this.queues.set(LanePositionsTypes.TOP, []);
+    this.queues.set(LanePositionsTypes.MIDDLE, []);
+    this.queues.set(LanePositionsTypes.BOTTOM, []);
     this.obstacleCycleCount = 0;
   }
 
-  create(isTopFloor: boolean) {
+  create(lane: LanePositionsTypes) {
     if (this.ctx !== null) {
       if (this.obstacleCycleCount >= OBSTACLE_CYCLE) {
         this.obstacleCycleCount = 0;
-        const cone = new Cone(this.ctx, isTopFloor);
-        if (isTopFloor) {
-          this.topFloorObstacleQueue.push(cone);
-        } else {
-          this.bottomFloorObstacleQueue.push(cone);
+        const cone = new Cone(this.ctx, lane, this.lanePositions[lane]);
+        if (this.queues.has(lane)) {
+          this.queues.get(lane)?.push(cone);
         }
       }
     }
     this.obstacleCycleCount += 1;
   }
 
-  drawTop() {
-    this.topFloorObstacleQueue.forEach((obstacle) => {
-      obstacle.draw();
-    });
-  }
-
-  drawBottom() {
-    this.bottomFloorObstacleQueue.forEach((obstacle) => {
+  draw(lane: LanePositionsTypes) {
+    this.queues.get(lane)?.forEach((obstacle) => {
       obstacle.draw();
     });
   }
 
   update(secondsPassed: number = 1) {
-    this.topFloorObstacleQueue.forEach((obstacle) => {
-      obstacle.update(secondsPassed);
-    });
-
-    this.bottomFloorObstacleQueue.forEach((obstacle) => {
+    [...this.queues.values()].flat().forEach((obstacle) => {
       obstacle.update(secondsPassed);
     });
   }
 
-  getClosestObstacle(isTopFloor: boolean) {
-    return isTopFloor ? this.topFloorObstacleQueue[0] : this.bottomFloorObstacleQueue[0];
+  getClosestObstacle() {
+    const closestObstacles = [...this.queues.values()].map((obstacles) => obstacles[0]);
+    if (closestObstacles.length) {
+      return closestObstacles.reduce((closest: Obstacle | undefined, current) => {
+        if (closest && closest.x < current.x) {
+          return current;
+        }
+
+        return closest;
+      }, undefined);
+    }
+
+    return undefined;
   }
 
-  deleteOldestObstacle(isTopFloor: boolean) {
-    if (isTopFloor) {
-      this.topFloorObstacleQueue.shift();
-    } else {
-      this.bottomFloorObstacleQueue.shift();
+  deleteOldestObstacle() {
+    const closest = this.getClosestObstacle();
+    if (closest) {
+      const { lane } = closest;
+      this.queues.get(lane)?.shift();
     }
   }
 }

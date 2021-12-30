@@ -1,7 +1,6 @@
 import {
-  BOTTOM_FLOOR,
   FRAME_COUNT,
-  TOP_FLOOR,
+  LanePositionsTypes,
   ZERO_X_POS,
 } from './constant';
 import ImageCache, { CacheKey } from './imageCache';
@@ -13,29 +12,39 @@ export default class Friend {
 
   private frameCycle = 0;
 
-  private minY: number;
+  private currentLane: LanePositionsTypes;
+
+  private yPos: number;
 
   private xPos: number;
 
   private moved: boolean;
 
+  private created: boolean;
+
   private currentImageInAnimation: ImageBitmap | null;
 
-  constructor(private ctx: CanvasRenderingContext2D | null) {
-    this.minY = BOTTOM_FLOOR;
+  private lanePositions: number[];
+
+  constructor(private ctx: CanvasRenderingContext2D | null, lanePositions: number[]) {
+    this.currentLane = LanePositionsTypes.BOTTOM;
+    this.yPos = lanePositions[LanePositionsTypes.BOTTOM];
     this.moved = false;
+    this.created = false;
     this.currentImageInAnimation = null;
     this.xPos = ZERO_X_POS;
+    this.lanePositions = lanePositions;
+  }
+
+  get lane() {
+    return this.currentLane;
   }
 
   checkCollision(obstacle: Obstacle | undefined) {
     if (this.currentImageInAnimation !== null && obstacle !== undefined) {
-      const distanceFromObstacle = this.xPos + this.currentImageInAnimation.width - obstacle.x;
+      const distanceFromObstacle = (this.xPos + this.currentImageInAnimation.width) - obstacle.x;
       if (distanceFromObstacle > 0) {
-        if (
-          (obstacle.isTopFloor && this.minY === TOP_FLOOR)
-          || (!obstacle.isTopFloor && this.minY === BOTTOM_FLOOR)
-        ) {
+        if (obstacle.lane === this.currentLane) {
           return true;
         }
       }
@@ -48,10 +57,7 @@ export default class Friend {
     if (this.currentImageInAnimation !== null && obstacle !== undefined) {
       const distanceFromObstacle = this.xPos - (obstacle.x + obstacle.w);
       if (distanceFromObstacle > 0) {
-        if (
-          (obstacle.isTopFloor && this.minY === BOTTOM_FLOOR)
-          || (!obstacle.isTopFloor && this.minY === TOP_FLOOR)
-        ) {
+        if (obstacle.lane !== this.currentLane) {
           return true;
         }
       }
@@ -63,7 +69,8 @@ export default class Friend {
   reset() {
     this.frameCycle = 0;
     this.currentFrame = 0;
-    this.minY = BOTTOM_FLOOR;
+    this.yPos = this.lanePositions[LanePositionsTypes.BOTTOM]
+      - (this.currentImageInAnimation?.height || 0);
     this.moved = false;
     this.currentImageInAnimation = null;
     this.xPos = ZERO_X_POS;
@@ -75,7 +82,7 @@ export default class Friend {
     this.currentImageInAnimation = sprites[this.currentFrame % FRAME_COUNT];
 
     if (this.ctx !== null) {
-      this.ctx.drawImage(this.currentImageInAnimation, this.xPos, this.minY);
+      this.ctx.drawImage(this.currentImageInAnimation, this.xPos, this.yPos);
     }
 
     if (this.frameCycle > FRAME_COUNT * 0.7) {
@@ -85,15 +92,24 @@ export default class Friend {
   }
 
   update(buttonPressed: Set<Keys | undefined>) {
-    if (this.moved && !buttonPressed.has(Keys.SPACE)) {
+    const heightOfFriend = this.currentImageInAnimation?.height;
+    if (!this.created && heightOfFriend) {
+      this.created = true;
+      this.yPos = this.lanePositions[this.currentLane] - (heightOfFriend || 0);
+    }
+
+    if (this.moved) {
       this.moved = false;
     } else if (!this.moved && buttonPressed.has(Keys.SPACE)) {
-      this.minY = this.minY === BOTTOM_FLOOR ? TOP_FLOOR : BOTTOM_FLOOR;
+      this.currentLane = (this.currentLane + 1) % this.lanePositions.length;
+      this.yPos = this.lanePositions[this.currentLane] - (heightOfFriend || 0);
       this.moved = true;
-    } else if (buttonPressed.has(Keys.DOWN)) {
-      this.minY = BOTTOM_FLOOR;
-    } else if (buttonPressed.has(Keys.UP)) {
-      this.minY = TOP_FLOOR;
+    } else if (!this.moved && buttonPressed.has(Keys.DOWN)) {
+      this.currentLane = (this.currentLane + 1) % this.lanePositions.length;
+      this.yPos = this.lanePositions[this.currentLane] - (heightOfFriend || 0);
+    } else if (!this.moved && buttonPressed.has(Keys.UP)) {
+      this.currentLane = Math.abs(-this.currentLane - 1) % this.lanePositions.length;
+      this.yPos = this.lanePositions[this.currentLane] - (heightOfFriend || 0);
     }
   }
 }

@@ -26,3 +26,9 @@ export const SPRITE_WIDTHS = [
   185,
   243,
 ];
+
+export enum LanePositionsTypes {
+  TOP,
+  MIDDLE,
+  BOTTOM,
+}

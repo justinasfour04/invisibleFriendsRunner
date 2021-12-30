@@ -1,4 +1,5 @@
 import '../static/stylesheet/index.css';
+import { LanePositionsTypes } from './constant';
 
 import Controller from './controller';
 import Friend from './friend';
@@ -13,13 +14,18 @@ const ctx = canvas.getContext('2d');
 canvas.width = (document.body.clientWidth / 1.1);
 canvas.height = (document.body.clientHeight / 1.2);
 
+const lanePositions = [
+  (14 * (canvas.height / 16)),
+  (15 * (canvas.height / 16)),
+  (16 * (canvas.height / 16)),
+];
+
 const gameState = new GameState();
 const controller = new Controller(canvas);
-const friend = new Friend(ctx);
+const friend = new Friend(ctx, lanePositions);
 const gameBackgroud = new GameBackground(ctx, [0, canvas.width]);
-const obstacleFactory = new ObstacleFactory(ctx);
+const obstacleFactory = new ObstacleFactory(ctx, lanePositions);
 
-const lineDash = [25, 30];
 let then: number;
 let elapsed: number;
 
@@ -37,34 +43,36 @@ async function draw() {
   if (ctx !== null) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    ctx.strokeStyle = 'black';
-
     ctx.save();
-    ctx.setLineDash([0]);
-    ctx.beginPath();
-    ctx.lineTo(canvas.width, 409);
-    ctx.moveTo(0, 409);
-    ctx.stroke();
-    ctx.restore();
-
-    ctx.save();
-    ctx.setLineDash(lineDash);
-    ctx.beginPath();
-    ctx.moveTo(0, 460);
-    ctx.lineTo(canvas.width, 460);
-    ctx.stroke();
-    ctx.restore();
-
-    ctx.save();
-    ctx.fillStyle = '#0083A3';
-    ctx.rect(0, 0, canvas.width, 410);
+    ctx.fillStyle = '#b7ada3';
+    ctx.rect(0, 0, canvas.width, canvas.height);
     ctx.fill();
     ctx.restore();
 
     gameBackgroud.draw();
-    obstacleFactory.drawTop();
-    friend.draw();
-    obstacleFactory.drawBottom();
+    switch (friend.lane) {
+      case LanePositionsTypes.TOP: {
+        obstacleFactory.draw(LanePositionsTypes.TOP);
+        friend.draw();
+        obstacleFactory.draw(LanePositionsTypes.MIDDLE);
+        obstacleFactory.draw(LanePositionsTypes.BOTTOM);
+        break;
+      }
+      case LanePositionsTypes.MIDDLE: {
+        obstacleFactory.draw(LanePositionsTypes.TOP);
+        obstacleFactory.draw(LanePositionsTypes.MIDDLE);
+        friend.draw();
+        obstacleFactory.draw(LanePositionsTypes.BOTTOM);
+        break;
+      }
+      default: {
+        obstacleFactory.draw(LanePositionsTypes.TOP);
+        obstacleFactory.draw(LanePositionsTypes.MIDDLE);
+        obstacleFactory.draw(LanePositionsTypes.BOTTOM);
+        friend.draw();
+        break;
+      }
+    }
   }
 }
 
@@ -192,25 +200,18 @@ function drawGameOverScreen() {
 }
 
 function setScore() {
-  const closestTopObstacle = obstacleFactory.getClosestObstacle(true);
-  const cloestBottomObstacle = obstacleFactory.getClosestObstacle(false);
+  const closestObstacle = obstacleFactory.getClosestObstacle();
 
-  const topObstaclePassed = friend.passedObstacle(closestTopObstacle);
-  const bottomObstaclePassed = friend.passedObstacle(cloestBottomObstacle);
+  const obstaclePassed = friend.passedObstacle(closestObstacle);
 
-  const isCollision = friend.checkCollision(closestTopObstacle)
-    || friend.checkCollision(cloestBottomObstacle);
+  const isCollision = friend.checkCollision(closestObstacle);
 
-  if ((topObstaclePassed || bottomObstaclePassed) && !isCollision) {
+  if (obstaclePassed && !isCollision) {
     gameState.score += 1;
   }
 
-  if (topObstaclePassed) {
-    obstacleFactory.deleteOldestObstacle(true);
-  }
-
-  if (bottomObstaclePassed) {
-    obstacleFactory.deleteOldestObstacle(false);
+  if (obstaclePassed) {
+    obstacleFactory.deleteOldestObstacle();
   }
 
   const highscoreValue = document.createElement('span');
@@ -229,10 +230,8 @@ function setScore() {
 }
 
 function youCrashed() {
-  const closestTopObstacle = obstacleFactory.getClosestObstacle(true);
-  const cloestBottomObstacle = obstacleFactory.getClosestObstacle(false);
-  return friend.checkCollision(closestTopObstacle)
-    || friend.checkCollision(cloestBottomObstacle);
+  const closestObstacle = obstacleFactory.getClosestObstacle();
+  return friend.checkCollision(closestObstacle);
 }
 
 function resetGame() {
@@ -241,6 +240,30 @@ function resetGame() {
   friend.reset();
   gameBackgroud.reset();
   obstacleFactory.reset();
+}
+
+async function mainLoopOnlyGame(frameTime?: number) {
+  if (frameTime) {
+    if (!then) {
+      then = frameTime;
+    }
+    elapsed = (frameTime - then) / 1000;
+
+    if (!gameState.isGameScreenDrawn) {
+      drawGameScreen();
+      gameState.isGameScreenDrawn = true;
+    }
+
+    setScore();
+    update(Math.min(elapsed, 0.1));
+    obstacleFactory.create(randomNumber(0, 1000) % 3);
+    await draw();
+
+    then = frameTime;
+    window.requestAnimationFrame(mainLoopOnlyGame);
+  } else {
+    window.requestAnimationFrame(mainLoopOnlyGame);
+  }
 }
 
 async function mainLoop(frameTime?: number) {
@@ -264,7 +287,7 @@ async function mainLoop(frameTime?: number) {
       } else {
         setScore();
         update(Math.min(elapsed, 0.1));
-        obstacleFactory.create(randomNumber(0, 1000) % 2 === 0);
+        obstacleFactory.create(randomNumber(0, 1000) % 3);
         await draw();
       }
     } else if (gameState.isGameOver) {
@@ -288,5 +311,6 @@ async function mainLoop(frameTime?: number) {
 
 (async () => {
   await ImageCache.loadAllImages(canvas);
-  await mainLoop();
+  // await mainLoop();
+  await mainLoopOnlyGame();
 })();
