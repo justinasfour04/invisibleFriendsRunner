@@ -205,7 +205,7 @@ function drawGameOverScreen() {
 function setScore() {
   const closestObstacle = obstacleFactory.getClosestObstacle();
   const obstaclePassed = friend.passedObstacle(closestObstacle);
-  const isCollision = friend.checkCollision(closestObstacle);
+  const isCollision = friend.checkCollision(obstacleFactory.getClosestObstacleIn(friend.lane));
 
   if (obstaclePassed && !isCollision) {
     gameState.score += 1;
@@ -227,8 +227,7 @@ function setScore() {
 }
 
 function youCrashed() {
-  const closestObstacle = obstacleFactory.getClosestObstacle();
-  return friend.checkCollision(closestObstacle);
+  return friend.checkCollision(obstacleFactory.getClosestObstacleIn(friend.lane));
 }
 
 function resetGame() {

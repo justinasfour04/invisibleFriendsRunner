@@ -48,6 +48,10 @@ export default class ObstacleFactory {
     });
   }
 
+  getClosestObstacleIn(lane: LanePositionsTypes) {
+    return (this.queues.get(lane) as Obstacle[])[0];
+  }
+
   getClosestObstacle(): Obstacle | undefined {
     const closestObstacles = [...this.queues.values()].map((o) => o[0]).filter(Boolean);
     let closestObstacle: Obstacle | undefined;
