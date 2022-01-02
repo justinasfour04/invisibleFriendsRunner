@@ -2,11 +2,9 @@ import Cone from './cone';
 import { LanePositionsTypes } from './constant';
 import Obstacle from './obstacle';
 
-const OBSTACLE_CYCLE = 200;
+const OBSTACLE_SPACING = 270;
 
 export default class ObstacleFactory {
-  private obstacleCycleCount: number;
-
   private queues: Map<LanePositionsTypes, Array<Obstacle>>;
 
   constructor(private ctx: CanvasRenderingContext2D | null, private lanePositions: number[]) {
@@ -15,27 +13,27 @@ export default class ObstacleFactory {
       [LanePositionsTypes.MIDDLE, []],
       [LanePositionsTypes.BOTTOM, []],
     ]);
-    this.obstacleCycleCount = 0;
   }
 
   reset() {
     this.queues.set(LanePositionsTypes.TOP, []);
     this.queues.set(LanePositionsTypes.MIDDLE, []);
     this.queues.set(LanePositionsTypes.BOTTOM, []);
-    this.obstacleCycleCount = 0;
   }
 
-  create(lane: LanePositionsTypes) {
+  create(lane: LanePositionsTypes, acceleration: number) {
     if (this.ctx !== null) {
-      if (this.obstacleCycleCount >= OBSTACLE_CYCLE) {
-        this.obstacleCycleCount = 0;
-        const cone = new Cone(this.ctx, lane, this.lanePositions[lane]);
-        if (this.queues.has(lane)) {
-          this.queues.get(lane)?.push(cone);
+      if (this.queues.get(lane) !== undefined) {
+        const cone = new Cone(this.ctx, lane, this.lanePositions[lane], acceleration);
+        const queue = this.queues.get(lane) as Obstacle[];
+
+        const allObstacles = [...this.queues.values()].flat();
+        const maxX = Math.max(...allObstacles.map((o) => o.x));
+        if (cone.x - maxX >= OBSTACLE_SPACING) {
+          queue.push(cone);
         }
       }
     }
-    this.obstacleCycleCount += 1;
   }
 
   draw(lane: LanePositionsTypes) {
@@ -50,26 +48,26 @@ export default class ObstacleFactory {
     });
   }
 
-  getClosestObstacle() {
-    const closestObstacles = [...this.queues.values()].map((obstacles) => obstacles[0]);
+  getClosestObstacle(): Obstacle | undefined {
+    const closestObstacles = [...this.queues.values()].map((o) => o[0]).filter(Boolean);
+    let closestObstacle: Obstacle | undefined;
+    let minX = Number.MAX_SAFE_INTEGER;
     if (closestObstacles.length) {
-      return closestObstacles.reduce((closest: Obstacle | undefined, current) => {
-        if (closest && closest.x < current.x) {
-          return current;
+      for (const obstacle of closestObstacles) {
+        if (obstacle.x < minX) {
+          minX = obstacle.x;
+          closestObstacle = obstacle;
         }
-
-        return closest;
-      }, undefined);
+      }
     }
-
-    return undefined;
+    return closestObstacle;
   }
 
-  deleteOldestObstacle() {
-    const closest = this.getClosestObstacle();
-    if (closest) {
-      const { lane } = closest;
-      this.queues.get(lane)?.shift();
-    }
+  deleteOldestObstacles() {
+    [...this.queues.values()].flat().forEach((obstacle) => {
+      if (obstacle.x < -obstacle.w) {
+        this.queues.get(obstacle.lane)?.shift();
+      }
+    });
   }
 }

@@ -14,6 +14,7 @@ const ctx = canvas.getContext('2d');
 canvas.width = (document.body.clientWidth / 1.1);
 canvas.height = (document.body.clientHeight / 1.2);
 
+const SPEED_UP_TIME = 10 * 1000;
 const lanePositions = [
   (14 * (canvas.height / 16)),
   (15 * (canvas.height / 16)),
@@ -28,6 +29,8 @@ const obstacleFactory = new ObstacleFactory(ctx, lanePositions);
 
 let then: number;
 let elapsed: number;
+let speedUpTimeStart: number;
+let acceleration = 0;
 
 function saveHighscore() {
   localStorage.setItem('highscore', Math.max(gameState.score, gameState.highscore).toString(10));
@@ -201,17 +204,11 @@ function drawGameOverScreen() {
 
 function setScore() {
   const closestObstacle = obstacleFactory.getClosestObstacle();
-
   const obstaclePassed = friend.passedObstacle(closestObstacle);
-
   const isCollision = friend.checkCollision(closestObstacle);
 
   if (obstaclePassed && !isCollision) {
     gameState.score += 1;
-  }
-
-  if (obstaclePassed) {
-    obstacleFactory.deleteOldestObstacle();
   }
 
   const highscoreValue = document.createElement('span');
@@ -242,29 +239,29 @@ function resetGame() {
   obstacleFactory.reset();
 }
 
-async function mainLoopOnlyGame(frameTime?: number) {
-  if (frameTime) {
-    if (!then) {
-      then = frameTime;
-    }
-    elapsed = (frameTime - then) / 1000;
+// async function mainLoopOnlyGame(frameTime?: number) {
+//   if (frameTime) {
+//     if (!then) {
+//       then = frameTime;
+//     }
+//     elapsed = (frameTime - then) / 1000;
 
-    if (!gameState.isGameScreenDrawn) {
-      drawGameScreen();
-      gameState.isGameScreenDrawn = true;
-    }
+//     if (!gameState.isGameScreenDrawn) {
+//       drawGameScreen();
+//       gameState.isGameScreenDrawn = true;
+//     }
 
-    setScore();
-    update(Math.min(elapsed, 0.1));
-    obstacleFactory.create(randomNumber(0, 1000) % 3);
-    await draw();
+//     setScore();
+//     update(Math.min(elapsed, 0.1));
+//     obstacleFactory.create(randomNumber(0, 1000) % 3);
+//     await draw();
 
-    then = frameTime;
-    window.requestAnimationFrame(mainLoopOnlyGame);
-  } else {
-    window.requestAnimationFrame(mainLoopOnlyGame);
-  }
-}
+//     then = frameTime;
+//     window.requestAnimationFrame(mainLoopOnlyGame);
+//   } else {
+//     window.requestAnimationFrame(mainLoopOnlyGame);
+//   }
+// }
 
 async function mainLoop(frameTime?: number) {
   if (frameTime) {
@@ -275,6 +272,7 @@ async function mainLoop(frameTime?: number) {
 
     if (gameState.isGameRunning) {
       if (!gameState.isGameScreenDrawn) {
+        speedUpTimeStart = frameTime;
         drawGameScreen();
         gameState.isGameScreenDrawn = true;
       }
@@ -286,8 +284,13 @@ async function mainLoop(frameTime?: number) {
         gameState.isGameRunning = false;
       } else {
         setScore();
+        obstacleFactory.deleteOldestObstacles();
+        if (frameTime - speedUpTimeStart >= SPEED_UP_TIME) {
+          speedUpTimeStart = frameTime;
+          acceleration -= 10;
+        }
         update(Math.min(elapsed, 0.1));
-        obstacleFactory.create(randomNumber(0, 1000) % 3);
+        obstacleFactory.create(randomNumber(0, 1000) % 3, acceleration);
         await draw();
       }
     } else if (gameState.isGameOver) {
@@ -311,6 +314,6 @@ async function mainLoop(frameTime?: number) {
 
 (async () => {
   await ImageCache.loadAllImages(canvas);
-  // await mainLoop();
-  await mainLoopOnlyGame();
+  await mainLoop();
+  // await mainLoopOnlyGame();
 })();

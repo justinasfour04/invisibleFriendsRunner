@@ -42,11 +42,12 @@ export default class Friend {
 
   checkCollision(obstacle: Obstacle | undefined) {
     if (this.currentImageInAnimation !== null && obstacle !== undefined) {
-      const distanceFromObstacle = (this.xPos + this.currentImageInAnimation.width) - obstacle.x;
-      if (distanceFromObstacle > 0) {
-        if (obstacle.lane === this.currentLane) {
-          return true;
-        }
+      const distanceFromObstacle = obstacle.x - (this.xPos + this.currentImageInAnimation.width);
+      if (distanceFromObstacle >= -this.currentImageInAnimation.width
+        && distanceFromObstacle <= 0
+        && obstacle.lane === this.currentLane
+      ) {
+        return true;
       }
     }
 
@@ -56,10 +57,9 @@ export default class Friend {
   passedObstacle(obstacle: Obstacle | undefined) {
     if (this.currentImageInAnimation !== null && obstacle !== undefined) {
       const distanceFromObstacle = this.xPos - (obstacle.x + obstacle.w);
-      if (distanceFromObstacle > 0) {
-        if (obstacle.lane !== this.currentLane) {
-          return true;
-        }
+      if (distanceFromObstacle > 0 && obstacle.lane !== this.currentLane && !obstacle.isPassed) {
+        obstacle.isPassed = true;
+        return true;
       }
     }
 
@@ -98,18 +98,27 @@ export default class Friend {
       this.yPos = this.lanePositions[this.currentLane] - (heightOfFriend || 0);
     }
 
-    if (this.moved) {
+    if (buttonPressed.has(Keys.SPACE)) {
+      if (!this.moved) {
+        this.currentLane = (this.currentLane + 1) % this.lanePositions.length;
+        this.yPos = this.lanePositions[this.currentLane] - (heightOfFriend || 0);
+        this.moved = true;
+      }
+    } else if (buttonPressed.has(Keys.DOWN)) {
+      if (!this.moved) {
+        this.currentLane = (this.currentLane + 1) % this.lanePositions.length;
+        this.yPos = this.lanePositions[this.currentLane] - (heightOfFriend || 0);
+        this.moved = true;
+      }
+    } else if (buttonPressed.has(Keys.UP)) {
+      if (!this.moved) {
+        const size = this.lanePositions.length;
+        this.currentLane = ((this.currentLane + size) - 1) % size;
+        this.yPos = this.lanePositions[this.currentLane] - (heightOfFriend || 0);
+        this.moved = true;
+      }
+    } else {
       this.moved = false;
-    } else if (!this.moved && buttonPressed.has(Keys.SPACE)) {
-      this.currentLane = (this.currentLane + 1) % this.lanePositions.length;
-      this.yPos = this.lanePositions[this.currentLane] - (heightOfFriend || 0);
-      this.moved = true;
-    } else if (!this.moved && buttonPressed.has(Keys.DOWN)) {
-      this.currentLane = (this.currentLane + 1) % this.lanePositions.length;
-      this.yPos = this.lanePositions[this.currentLane] - (heightOfFriend || 0);
-    } else if (!this.moved && buttonPressed.has(Keys.UP)) {
-      this.currentLane = Math.abs(-this.currentLane - 1) % this.lanePositions.length;
-      this.yPos = this.lanePositions[this.currentLane] - (heightOfFriend || 0);
     }
   }
 }

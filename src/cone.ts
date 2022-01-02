@@ -2,7 +2,7 @@ import { LanePositionsTypes } from './constant';
 import ImageCache, { CacheKey } from './imageCache';
 import Obstacle from './obstacle';
 
-const VELOCITY = -325;
+const BASE_VELOCITY = -325;
 
 function getCacheKey(lane: LanePositionsTypes) {
   switch (lane) {
@@ -22,9 +22,14 @@ function getCacheKey(lane: LanePositionsTypes) {
 }
 
 export default class Cone extends Obstacle {
-  constructor(ctx: CanvasRenderingContext2D, currentLane: LanePositionsTypes, yPos: number) {
+  constructor(
+    ctx: CanvasRenderingContext2D,
+    currentLane: LanePositionsTypes,
+    yPos: number,
+    acceleration: number,
+  ) {
     const cone = ImageCache.getImage(getCacheKey(currentLane)) as ImageBitmap;
-    super(ctx, cone.width, VELOCITY, currentLane, yPos);
+    super(ctx, cone.width, BASE_VELOCITY + acceleration, currentLane, yPos);
   }
 
   draw(): void {
