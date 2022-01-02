@@ -231,6 +231,7 @@ function youCrashed() {
 }
 
 function resetGame() {
+  acceleration = 0;
   gameState.score = 0;
   gameState.highscore = parseInt(localStorage.getItem('highscore') ?? '0', 10);
   friend.reset();
