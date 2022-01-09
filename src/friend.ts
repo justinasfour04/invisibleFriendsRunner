@@ -98,22 +98,21 @@ export default class Friend {
       this.yPos = this.lanePositions[this.currentLane] - (heightOfFriend || 0);
     }
 
-    if (buttonPressed.has(Keys.SPACE)) {
+    if (buttonPressed.has(Keys.DOWN)) {
       if (!this.moved) {
-        this.currentLane = (this.currentLane + 1) % this.lanePositions.length;
-        this.yPos = this.lanePositions[this.currentLane] - (heightOfFriend || 0);
-        this.moved = true;
-      }
-    } else if (buttonPressed.has(Keys.DOWN)) {
-      if (!this.moved) {
-        this.currentLane = (this.currentLane + 1) % this.lanePositions.length;
+        this.currentLane = this.currentLane + 1 >= LanePositionsTypes.BOTTOM + 1
+          ? LanePositionsTypes.BOTTOM
+          : this.currentLane + 1;
         this.yPos = this.lanePositions[this.currentLane] - (heightOfFriend || 0);
         this.moved = true;
       }
     } else if (buttonPressed.has(Keys.UP)) {
       if (!this.moved) {
-        const size = this.lanePositions.length;
-        this.currentLane = ((this.currentLane + size) - 1) % size;
+        // const size = this.lanePositions.length;
+        // this.currentLane = ((this.currentLane + size) - 1) % size;
+        this.currentLane = this.currentLane - 1 <= LanePositionsTypes.TOP - 1
+          ? LanePositionsTypes.TOP
+          : this.currentLane - 1;
         this.yPos = this.lanePositions[this.currentLane] - (heightOfFriend || 0);
         this.moved = true;
       }

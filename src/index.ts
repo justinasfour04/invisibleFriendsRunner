@@ -14,6 +14,11 @@ const ctx = canvas.getContext('2d');
 canvas.width = (document.body.clientWidth / 1.1);
 canvas.height = (document.body.clientHeight / 1.2);
 
+const moveUp = document.createElement('div');
+moveUp.className = 'moveUp';
+const moveDown = document.createElement('div');
+moveDown.className = 'moveDown';
+
 const SPEED_UP_TIME = 10 * 1000;
 const lanePositions = [
   (14 * (canvas.height / 16)),
@@ -22,7 +27,7 @@ const lanePositions = [
 ];
 
 const gameState = new GameState();
-const controller = new Controller(canvas);
+const controller = new Controller(canvas, moveUp, moveDown);
 const friend = new Friend(ctx, lanePositions);
 const gameBackgroud = new GameBackground(ctx, [0, canvas.width]);
 const obstacleFactory = new ObstacleFactory(ctx, lanePositions);
@@ -100,6 +105,9 @@ function drawGameScreen() {
 
   container.appendChild(scoreDiv);
   container.appendChild(canvas);
+
+  container.appendChild(moveUp);
+  container.appendChild(moveDown);
 
   document.body.appendChild(container);
 }
@@ -239,29 +247,29 @@ function resetGame() {
   obstacleFactory.reset();
 }
 
-// async function mainLoopOnlyGame(frameTime?: number) {
-//   if (frameTime) {
-//     if (!then) {
-//       then = frameTime;
-//     }
-//     elapsed = (frameTime - then) / 1000;
+async function mainLoopOnlyGame(frameTime?: number) {
+  if (frameTime) {
+    if (!then) {
+      then = frameTime;
+    }
+    elapsed = (frameTime - then) / 1000;
 
-//     if (!gameState.isGameScreenDrawn) {
-//       drawGameScreen();
-//       gameState.isGameScreenDrawn = true;
-//     }
+    if (!gameState.isGameScreenDrawn) {
+      drawGameScreen();
+      gameState.isGameScreenDrawn = true;
+    }
 
-//     setScore();
-//     update(Math.min(elapsed, 0.1));
-//     obstacleFactory.create(randomNumber(0, 1000) % 3);
-//     await draw();
+    setScore();
+    update(Math.min(elapsed, 0.1));
+    obstacleFactory.create(randomNumber(0, 1000) % 3, acceleration);
+    await draw();
 
-//     then = frameTime;
-//     window.requestAnimationFrame(mainLoopOnlyGame);
-//   } else {
-//     window.requestAnimationFrame(mainLoopOnlyGame);
-//   }
-// }
+    then = frameTime;
+    window.requestAnimationFrame(mainLoopOnlyGame);
+  } else {
+    window.requestAnimationFrame(mainLoopOnlyGame);
+  }
+}
 
 async function mainLoop(frameTime?: number) {
   if (frameTime) {

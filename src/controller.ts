@@ -1,6 +1,7 @@
 import Keys from './keys';
 
-const TOUCH = 'Touch';
+const MOVE_UP = 'moveup';
+const MOVE_DOWN = 'movedown';
 const keyMap = new Map([
   ['KeyW', Keys.UP],
   ['ArrowUp', Keys.UP],
@@ -8,8 +9,8 @@ const keyMap = new Map([
   ['KeyS', Keys.DOWN],
   ['ArrowDown', Keys.DOWN],
 
-  ['Space', Keys.SPACE],
-  [TOUCH, Keys.SPACE],
+  [MOVE_UP, Keys.UP],
+  [MOVE_DOWN, Keys.DOWN],
 ]);
 
 export default class Controller {
@@ -19,27 +20,49 @@ export default class Controller {
     return this.#buttonPressed;
   }
 
-  constructor(canvas: HTMLCanvasElement) {
+  constructor(canvas: HTMLCanvasElement, moveUp: HTMLDivElement, moveDown: HTMLDivElement) {
     this.#buttonPressed = new Set();
-    canvas.addEventListener('touchstart', (event) => {
+    moveUp.addEventListener('touchstart', (event) => {
       event.preventDefault();
-      if (keyMap.has(TOUCH)
+      if (keyMap.has(MOVE_UP)
         && this.#buttonPressed.size === 0
-        && !this.#buttonPressed.has(keyMap.get(TOUCH))
+        && !this.#buttonPressed.has(keyMap.get(MOVE_UP))
       ) {
-        this.#buttonPressed.add(keyMap.get(TOUCH));
+        this.#buttonPressed.add(keyMap.get(MOVE_UP));
       }
     });
-    canvas.addEventListener('touchmove', (event) => {
+    moveUp.addEventListener('touchmove', (event) => {
       event.preventDefault();
     });
-    canvas.addEventListener('touchend', (event) => {
+    moveUp.addEventListener('touchend', (event) => {
       event.preventDefault();
-      if (keyMap.has(TOUCH)
+      if (keyMap.has(MOVE_UP)
         && this.#buttonPressed.size === 1
-        && this.#buttonPressed.has(keyMap.get(TOUCH))
+        && this.#buttonPressed.has(keyMap.get(MOVE_UP))
       ) {
-        this.#buttonPressed.delete(keyMap.get(TOUCH));
+        this.#buttonPressed.delete(keyMap.get(MOVE_UP));
+      }
+    });
+
+    moveDown.addEventListener('touchstart', (event) => {
+      event.preventDefault();
+      if (keyMap.has(MOVE_DOWN)
+        && this.#buttonPressed.size === 0
+        && !this.#buttonPressed.has(keyMap.get(MOVE_DOWN))
+      ) {
+        this.#buttonPressed.add(keyMap.get(MOVE_DOWN));
+      }
+    });
+    moveDown.addEventListener('touchmove', (event) => {
+      event.preventDefault();
+    });
+    moveDown.addEventListener('touchend', (event) => {
+      event.preventDefault();
+      if (keyMap.has(MOVE_DOWN)
+        && this.#buttonPressed.size === 1
+        && this.#buttonPressed.has(keyMap.get(MOVE_DOWN))
+      ) {
+        this.#buttonPressed.delete(keyMap.get(MOVE_DOWN));
       }
     });
 
