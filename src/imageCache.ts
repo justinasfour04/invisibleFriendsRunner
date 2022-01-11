@@ -7,7 +7,6 @@ import {
   FRAME_COUNT,
   SPRITE_HEIGHT,
   SPRITE_WIDTH,
-  SPRITE_WIDTHS,
 } from './constant';
 
 type CacheValue = ImageBitmap | Array<ImageBitmap>;
@@ -92,9 +91,9 @@ export default class ImageCache {
         { length: FRAME_COUNT },
         (_, i) => loadImage(
           Spritesheet,
-          (i % FRAME_COUNT) * SPRITE_WIDTH,
+          (i % FRAME_COUNT) * SPRITE_WIDTH + 12,
           0,
-          SPRITE_WIDTH,
+          SPRITE_WIDTH - 24,
           SPRITE_HEIGHT,
           {
             resizeQuality: 'high',

@@ -29,14 +29,6 @@ export const SPRITE_HEIGHT = 64;
 //   185,
 //   243,
 // ];
-export const SPRITE_WIDTHS = [
-  40,
-  40,
-  40,
-  40,
-  40,
-  40,
-];
 
 export enum LanePositionsTypes {
   TOP,

@@ -7,10 +7,11 @@ import ImageCache, { CacheKey } from './imageCache';
 import Keys from './keys';
 import Obstacle from './obstacle';
 
+const frameRate = 6;
+const frameDuration = 1000 / frameRate;
+
 export default class Friend {
   private currentFrame = 0;
-
-  private frameCycle = 0;
 
   private currentLane: LanePositionsTypes;
 
@@ -26,6 +27,8 @@ export default class Friend {
 
   private lanePositions: number[];
 
+  private lastTimeDrawn: number | undefined;
+
   constructor(private ctx: CanvasRenderingContext2D | null, lanePositions: number[]) {
     this.currentLane = LanePositionsTypes.BOTTOM;
     this.yPos = lanePositions[LanePositionsTypes.BOTTOM];
@@ -34,6 +37,7 @@ export default class Friend {
     this.currentImageInAnimation = null;
     this.xPos = ZERO_X_POS;
     this.lanePositions = lanePositions;
+    this.lastTimeDrawn = undefined;
   }
 
   get lane() {
@@ -67,7 +71,6 @@ export default class Friend {
   }
 
   reset() {
-    this.frameCycle = 0;
     this.currentFrame = 0;
     this.yPos = this.lanePositions[LanePositionsTypes.BOTTOM]
       - (this.currentImageInAnimation?.height || 0);
@@ -77,17 +80,20 @@ export default class Friend {
   }
 
   draw() {
-    this.frameCycle += 1;
-    const sprites = ImageCache.getImage(CacheKey.SPRITES) as ImageBitmap[];
-    this.currentImageInAnimation = sprites[this.currentFrame % FRAME_COUNT];
-
-    if (this.ctx !== null) {
-      this.ctx.drawImage(this.currentImageInAnimation, this.xPos, this.yPos);
+    if (!this.lastTimeDrawn) {
+      this.lastTimeDrawn = Date.now();
     }
 
-    if (this.frameCycle > FRAME_COUNT) {
+    const currentDrawTime = Date.now();
+    if (currentDrawTime - this.lastTimeDrawn > frameDuration) {
       this.currentFrame += 1;
-      this.frameCycle = 0;
+      this.lastTimeDrawn = currentDrawTime;
+    }
+
+    if (this.ctx !== null) {
+      const sprites = ImageCache.getImage(CacheKey.SPRITES) as ImageBitmap[];
+      this.currentImageInAnimation = sprites[this.currentFrame % FRAME_COUNT];
+      this.ctx.drawImage(this.currentImageInAnimation as ImageBitmap, this.xPos, this.yPos);
     }
   }
 
