@@ -22,13 +22,16 @@ module.exports = {
         ],
         exclude: /node_modules/,
       },
+      {
+        test: /\.html$/,
+        loader: 'html-loader'
+      }
     ],
   },
   plugins: [
     new HtmlWebpackPlugin({
       template: './src/index.html',
       favicon: './static/img/favicon.ico',
-      title: 'Invisible Friends Runner',
     }),
   ],
   resolve: {

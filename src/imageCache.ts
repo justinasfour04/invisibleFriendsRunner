@@ -1,5 +1,5 @@
 import ConePng from '../static/img/cone.png';
-import Spritesheet from '../static/img/spritesheet.png';
+import Spritesheet from '../static/img/pixelspritesheet.png';
 import Background from '../static/img/background.png';
 import Clouds from '../static/img/clouds.png';
 import { loadImage } from './util';
@@ -94,11 +94,11 @@ export default class ImageCache {
           Spritesheet,
           (i % FRAME_COUNT) * SPRITE_WIDTH,
           0,
-          SPRITE_WIDTHS[i % FRAME_COUNT],
+          SPRITE_WIDTH,
           SPRITE_HEIGHT,
           {
             resizeQuality: 'high',
-            resizeHeight: (canvas.height / 4),
+            resizeHeight: (canvas.height / 3),
           },
         ),
       ),

@@ -1,6 +1,9 @@
 import '../static/stylesheet/index.css';
 import { LanePositionsTypes } from './constant';
 
+import GameMenu from './pages/GameMenu.html';
+import GameOverScreen from './pages/GameOverScreen.html';
+
 import Controller from './controller';
 import Friend from './friend';
 import GameBackground from './gamebackground';
@@ -37,8 +40,18 @@ let elapsed: number;
 let speedUpTimeStart: number;
 let acceleration = 0;
 
-function saveHighscore() {
+async function saveHighscore() {
   localStorage.setItem('highscore', Math.max(gameState.score, gameState.highscore).toString(10));
+  await fetch('https://lit-shelf-93432.herokuapp.com/scores', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      playerName: 'powerofthenut',
+      score: gameState.score,
+    }),
+  });
 }
 
 function update(secondsPassed: number = 1) {
@@ -85,129 +98,114 @@ async function draw() {
 }
 
 function drawGameScreen() {
-  document.body.firstElementChild?.remove();
-  const container = document.createElement('div');
-  container.className = 'container';
+  const container = document.body.querySelector('.container');
+  if (container !== null) {
+    container.innerHTML = '';
 
-  const scoreDiv = document.createElement('div');
-  scoreDiv.className = 'score';
+    const scoreDiv = document.createElement('div');
+    scoreDiv.className = 'score';
 
-  const scoreText = document.createElement('p');
-  scoreText.className = 'scoreText';
-  scoreText.id = '_score';
+    const scoreText = document.createElement('p');
+    scoreText.className = 'scoreText';
+    scoreText.id = '_score';
 
-  const highscoreText = document.createElement('p');
-  highscoreText.className = 'scoreText';
-  highscoreText.id = '_highscore';
+    const highscoreText = document.createElement('p');
+    highscoreText.className = 'scoreText';
+    highscoreText.id = '_highscore';
 
-  scoreDiv.appendChild(scoreText);
-  scoreDiv.appendChild(highscoreText);
+    scoreDiv.appendChild(scoreText);
+    scoreDiv.appendChild(highscoreText);
 
-  container.appendChild(scoreDiv);
-  container.appendChild(canvas);
+    container.appendChild(scoreDiv);
+    container.appendChild(canvas);
 
-  container.appendChild(moveUp);
-  container.appendChild(moveDown);
-
-  document.body.appendChild(container);
+    container.appendChild(moveUp);
+    container.appendChild(moveDown);
+  }
 }
 
 function drawGameMenu() {
-  document.body.firstElementChild?.remove();
-  const container = document.createElement('div');
-  container.className = 'container';
+  const container = document.body.querySelector('.container');
+  if (container !== null) {
+    container.innerHTML = GameMenu;
 
-  const menuTitle = document.createElement('p');
-  menuTitle.className = 'menu_title';
-  menuTitle.innerText = 'INVISIBLE FRIENDS RUNNER';
+    const startButton = document.querySelector('[start]');
+    if (startButton) {
+      startButton.addEventListener('mouseover', () => {
+        startButton.textContent = 'BING BONG';
+      });
+      startButton.addEventListener('mouseleave', () => {
+        startButton.textContent = 'START';
+      });
+      startButton.addEventListener('click', () => {
+        gameState.isGameMenuDrawn = false;
+        gameState.isGameScreenDrawn = false;
+        gameState.isGameOverDrawn = false;
+        gameState.isInMenu = false;
+        gameState.isGameRunning = true;
+        gameState.isGameOver = false;
+      });
 
-  const startButton = document.createElement('button');
-  startButton.className = 'action_button';
-  startButton.textContent = 'START';
-  startButton.addEventListener('mouseover', () => {
-    startButton.textContent = 'BING BONG';
-  });
-  startButton.addEventListener('mouseleave', () => {
-    startButton.textContent = 'START';
-  });
-  startButton.addEventListener('click', () => {
-    gameState.isGameMenuDrawn = false;
-    gameState.isGameScreenDrawn = false;
-    gameState.isGameOverDrawn = false;
-    gameState.isInMenu = false;
-    gameState.isGameRunning = true;
-    gameState.isGameOver = false;
-  });
-
-  startButton.addEventListener('touchstart', (event) => {
-    event.preventDefault();
-    startButton.textContent = 'BING BONG';
-  });
-  startButton.addEventListener('touchmove', (event) => {
-    event.preventDefault();
-  });
-  startButton.addEventListener('touchend', (event) => {
-    event.preventDefault();
-    gameState.isGameMenuDrawn = false;
-    gameState.isGameScreenDrawn = false;
-    gameState.isGameOverDrawn = false;
-    gameState.isInMenu = false;
-    gameState.isGameRunning = true;
-    gameState.isGameOver = false;
-  });
-
-  container.appendChild(menuTitle);
-  container.appendChild(startButton);
-  document.body.appendChild(container);
+      startButton.addEventListener('touchstart', (event) => {
+        event.preventDefault();
+        startButton.textContent = 'BING BONG';
+      });
+      startButton.addEventListener('touchmove', (event) => {
+        event.preventDefault();
+      });
+      startButton.addEventListener('touchend', (event) => {
+        event.preventDefault();
+        gameState.isGameMenuDrawn = false;
+        gameState.isGameScreenDrawn = false;
+        gameState.isGameOverDrawn = false;
+        gameState.isInMenu = false;
+        gameState.isGameRunning = true;
+        gameState.isGameOver = false;
+      });
+    }
+  }
 }
 
 function drawGameOverScreen() {
-  document.body.firstElementChild?.remove();
-  const container = document.createElement('div');
-  container.className = 'container';
+  const container = document.body.querySelector('.container');
+  if (container !== null) {
+    container.innerHTML = GameOverScreen;
 
-  const gameoverTitle = document.createElement('p');
-  gameoverTitle.className = 'menu_title';
-  gameoverTitle.innerText = 'GAME OVER!!!!';
+    const playagainButton = document.querySelector('[playagain]');
+    if (playagainButton) {
+      playagainButton.addEventListener('mouseover', () => {
+        playagainButton.textContent = 'BING BONG';
+      });
+      playagainButton.addEventListener('mouseleave', () => {
+        playagainButton.textContent = 'PLAY AGAIN';
+      });
+      playagainButton.addEventListener('click', () => {
+        gameState.isGameMenuDrawn = false;
+        gameState.isGameScreenDrawn = false;
+        gameState.isGameOverDrawn = false;
+        gameState.isInMenu = false;
+        gameState.isGameRunning = true;
+        gameState.isGameOver = false;
+      });
 
-  const playagainButton = document.createElement('button');
-  playagainButton.className = 'action_button';
-  playagainButton.textContent = 'PLAY AGAIN';
-  playagainButton.addEventListener('mouseover', () => {
-    playagainButton.textContent = 'BING BONG';
-  });
-  playagainButton.addEventListener('mouseleave', () => {
-    playagainButton.textContent = 'PLAY AGAIN';
-  });
-  playagainButton.addEventListener('click', () => {
-    gameState.isGameMenuDrawn = false;
-    gameState.isGameScreenDrawn = false;
-    gameState.isGameOverDrawn = false;
-    gameState.isInMenu = false;
-    gameState.isGameRunning = true;
-    gameState.isGameOver = false;
-  });
-
-  playagainButton.addEventListener('touchstart', (event) => {
-    event.preventDefault();
-    playagainButton.textContent = 'BING BONG';
-  });
-  playagainButton.addEventListener('touchmove', (event) => {
-    event.preventDefault();
-  });
-  playagainButton.addEventListener('touchend', (event) => {
-    event.preventDefault();
-    gameState.isGameMenuDrawn = false;
-    gameState.isGameScreenDrawn = false;
-    gameState.isGameOverDrawn = false;
-    gameState.isInMenu = false;
-    gameState.isGameRunning = true;
-    gameState.isGameOver = false;
-  });
-
-  container.appendChild(gameoverTitle);
-  container.appendChild(playagainButton);
-  document.body.appendChild(container);
+      playagainButton.addEventListener('touchstart', (event) => {
+        event.preventDefault();
+        playagainButton.textContent = 'BING BONG';
+      });
+      playagainButton.addEventListener('touchmove', (event) => {
+        event.preventDefault();
+      });
+      playagainButton.addEventListener('touchend', (event) => {
+        event.preventDefault();
+        gameState.isGameMenuDrawn = false;
+        gameState.isGameScreenDrawn = false;
+        gameState.isGameOverDrawn = false;
+        gameState.isInMenu = false;
+        gameState.isGameRunning = true;
+        gameState.isGameOver = false;
+      });
+    }
+  }
 }
 
 function setScore() {
@@ -286,7 +284,7 @@ async function mainLoop(frameTime?: number) {
       }
 
       if (youCrashed()) {
-        saveHighscore();
+        await saveHighscore();
         resetGame();
         gameState.isGameOver = true;
         gameState.isGameRunning = false;

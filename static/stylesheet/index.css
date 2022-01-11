@@ -28,6 +28,14 @@ canvas {
   border-radius: 15px;
 }
 
+.row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  width: 50%;
+}
+
 .menu_title {
   font-size: 4em;
 }
@@ -54,7 +62,8 @@ canvas {
   user-select: none;
   -webkit-user-select: none;
   touch-action: manipulation;
-  width: 25%;
+  margin: 0 3rem;
+  width: -webkit-fill-available;
 }
 
 .action_button:not(:disabled):hover {

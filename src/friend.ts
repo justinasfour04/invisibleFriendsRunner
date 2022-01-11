@@ -85,7 +85,7 @@ export default class Friend {
       this.ctx.drawImage(this.currentImageInAnimation, this.xPos, this.yPos);
     }
 
-    if (this.frameCycle > FRAME_COUNT * 0.7) {
+    if (this.frameCycle > FRAME_COUNT) {
       this.currentFrame += 1;
       this.frameCycle = 0;
     }
