@@ -91,9 +91,9 @@ export default class ImageCache {
         { length: FRAME_COUNT },
         (_, i) => loadImage(
           Spritesheet,
-          (i % FRAME_COUNT) * SPRITE_WIDTH + 12,
+          (i % FRAME_COUNT) * SPRITE_WIDTH,
           0,
-          SPRITE_WIDTH - 24,
+          SPRITE_WIDTH,
           SPRITE_HEIGHT,
           {
             resizeQuality: 'high',

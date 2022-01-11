@@ -42,16 +42,16 @@ let acceleration = 0;
 
 async function saveHighscore() {
   localStorage.setItem('highscore', Math.max(gameState.score, gameState.highscore).toString(10));
-  await fetch('https://lit-shelf-93432.herokuapp.com/scores', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      playerName: 'powerofthenut',
-      score: gameState.score,
-    }),
-  });
+  // await fetch('https://lit-shelf-93432.herokuapp.com/scores', {
+  //   method: 'POST',
+  //   headers: {
+  //     'Content-Type': 'application/json',
+  //   },
+  //   body: JSON.stringify({
+  //     playerName: 'powerofthenut',
+  //     score: gameState.score,
+  //   }),
+  // });
 }
 
 function update(secondsPassed: number = 1) {

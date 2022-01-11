@@ -1,6 +1,7 @@
 import {
   FRAME_COUNT,
   LanePositionsTypes,
+  SPRITE_HEIGHT,
   ZERO_X_POS,
 } from './constant';
 import ImageCache, { CacheKey } from './imageCache';
@@ -9,6 +10,14 @@ import Obstacle from './obstacle';
 
 const frameRate = 6;
 const frameDuration = 1000 / frameRate;
+const HITBOX = [
+  [16, 50],
+  [18, 46],
+  [24, 40],
+  [22, 49],
+  [24, 44],
+  [24, 41],
+];
 
 export default class Friend {
   private currentFrame = 0;
@@ -46,11 +55,20 @@ export default class Friend {
 
   checkCollision(obstacle: Obstacle | undefined) {
     if (this.currentImageInAnimation !== null && obstacle !== undefined) {
-      const distanceFromObstacle = obstacle.x - (this.xPos + this.currentImageInAnimation.width);
-      if (distanceFromObstacle >= -this.currentImageInAnimation.width
+      const scaleFactor = this.currentImageInAnimation.height / SPRITE_HEIGHT;
+      const spriteFrame = this.currentFrame % FRAME_COUNT;
+      const [startingX, endingX] = HITBOX[spriteFrame];
+      const xLeft = this.xPos + (startingX * scaleFactor);
+      const xRight = this.xPos + (endingX * scaleFactor);
+      const hitboxWidth = xRight - xLeft;
+      const distanceFromObstacle = obstacle.x - xRight;
+      if (distanceFromObstacle >= -hitboxWidth
         && distanceFromObstacle <= 0
         && obstacle.lane === this.currentLane
       ) {
+        console.log(xRight);
+        console.log(obstacle.x);
+        console.log(distanceFromObstacle);
         return true;
       }
     }
@@ -93,6 +111,18 @@ export default class Friend {
     if (this.ctx !== null) {
       const sprites = ImageCache.getImage(CacheKey.SPRITES) as ImageBitmap[];
       this.currentImageInAnimation = sprites[this.currentFrame % FRAME_COUNT];
+      // const scaleFactor = this.currentImageInAnimation.height / SPRITE_HEIGHT;
+      // const spriteFrame = this.currentFrame % FRAME_COUNT;
+      // const [startingX, endingX] = HITBOX[spriteFrame];
+      // const xLeft = this.xPos + (startingX * scaleFactor);
+      // const xRight = this.xPos + (endingX * scaleFactor);
+      // const hitboxWidth = xRight - xLeft;
+
+      // this.ctx.beginPath();
+      // this.ctx.lineWidth = 3;
+      // this.ctx.strokeStyle = 'white';
+      // this.ctx.rect(xLeft, this.yPos, hitboxWidth, this.currentImageInAnimation.width);
+      // this.ctx.stroke();
       this.ctx.drawImage(this.currentImageInAnimation as ImageBitmap, this.xPos, this.yPos);
     }
   }
