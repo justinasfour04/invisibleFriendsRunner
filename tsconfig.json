@@ -12,5 +12,5 @@
     "esModuleInterop": true,
     "sourceMap": true,
   },
-  "include": ["src", "index.d.ts"]
+  "include": ["src", "index.d.ts", "scripts"],
 }

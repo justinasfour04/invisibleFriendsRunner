@@ -1,8 +1,10 @@
+import 'bootstrap/dist/css/bootstrap.min.css';
 import '../static/stylesheet/index.css';
 import { LanePositionsTypes } from './constant';
 
 import GameMenu from './pages/GameMenu.html';
 import GameOverScreen from './pages/GameOverScreen.html';
+import LeaderBoard from './pages/LeaderBoard.html';
 
 import Controller from './controller';
 import Friend from './friend';
@@ -42,16 +44,6 @@ let acceleration = 0;
 
 async function saveHighscore() {
   localStorage.setItem('highscore', Math.max(gameState.score, gameState.highscore).toString(10));
-  // await fetch('https://lit-shelf-93432.herokuapp.com/scores', {
-  //   method: 'POST',
-  //   headers: {
-  //     'Content-Type': 'application/json',
-  //   },
-  //   body: JSON.stringify({
-  //     playerName: 'powerofthenut',
-  //     score: gameState.score,
-  //   }),
-  // });
 }
 
 function update(secondsPassed: number = 1) {
@@ -98,12 +90,13 @@ async function draw() {
 }
 
 function drawGameScreen() {
-  const container = document.body.querySelector('.container');
+  const container = document.getElementById('app');
   if (container !== null) {
     container.innerHTML = '';
 
     const scoreDiv = document.createElement('div');
     scoreDiv.className = 'score';
+    scoreDiv.style.width = canvas.width.toString(10);
 
     const scoreText = document.createElement('p');
     scoreText.className = 'scoreText';
@@ -119,13 +112,47 @@ function drawGameScreen() {
     container.appendChild(scoreDiv);
     container.appendChild(canvas);
 
-    container.appendChild(moveUp);
-    container.appendChild(moveDown);
+    const moveWrapper = document.createElement('div');
+    moveWrapper.style.width = canvas.width.toString(10);
+    moveWrapper.classList.add('d-flex', 'flex-column', 'align-items-center');
+    moveWrapper.appendChild(moveUp);
+    moveWrapper.appendChild(moveDown);
+    container.appendChild(moveWrapper);
+  }
+}
+
+async function drawLeaderboard() {
+  const response = await fetch('https://lit-shelf-93432.herokuapp.com/scores', {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+  let results: { player_name: string, score: string }[] = [];
+  ({
+    results,
+  } = await response.json());
+  document.getElementsByClassName('container')[0].classList.remove('align-items-center');
+  const container = document.getElementById('app');
+  if (container !== null) {
+    container.innerHTML = LeaderBoard;
+    container.style.width = '100%';
+    const board = document.getElementById('board');
+    for (const player of results) {
+      const tr = document.createElement('tr');
+      const playerName = document.createElement('td');
+      playerName.textContent = player.player_name;
+      const score = document.createElement('td');
+      score.textContent = player.score;
+      tr.appendChild(playerName);
+      tr.appendChild(score);
+      board?.appendChild(tr);
+    }
   }
 }
 
 function drawGameMenu() {
-  const container = document.body.querySelector('.container');
+  const container = document.getElementById('app');
   if (container !== null) {
     container.innerHTML = GameMenu;
 
@@ -163,11 +190,29 @@ function drawGameMenu() {
         gameState.isGameOver = false;
       });
     }
+
+    const leaderboardButton = document.querySelector('[leaderboard]');
+    if (leaderboardButton) {
+      leaderboardButton.addEventListener('click', () => {
+        drawLeaderboard();
+      });
+
+      leaderboardButton.addEventListener('touchstart', (event) => {
+        event.preventDefault();
+      });
+      leaderboardButton.addEventListener('touchmove', (event) => {
+        event.preventDefault();
+      });
+      leaderboardButton.addEventListener('touchend', (event) => {
+        event.preventDefault();
+        drawLeaderboard();
+      });
+    }
   }
 }
 
 function drawGameOverScreen() {
-  const container = document.body.querySelector('.container');
+  const container = document.getElementById('app');
   if (container !== null) {
     container.innerHTML = GameOverScreen;
 
@@ -318,8 +363,29 @@ async function mainLoop(frameTime?: number) {
   }
 }
 
+// async function populateLeaderboard() {
+//   const local = 'http://localhost:5000';
+//   // const prod = 'https://lit-shelf-93432.herokuapp.com';
+//   await Promise.all(Array.from({ length: 100 }, () => {
+//     const name = faker.name.firstName();
+//     const score = randomNumber(0, 1000);
+//     return fetch(`${local}/scores`, {
+//       method: 'POST',
+//       headers: {
+//         'Content-Type': 'application/json',
+//       },
+//       body: JSON.stringify({
+//         playerName: name,
+//         score,
+//       }),
+//     });
+//   }));
+// }
+
 (async () => {
   await ImageCache.loadAllImages(canvas);
   await mainLoop();
   // await mainLoopOnlyGame();
+  // await populateLeaderboard();
+  // await drawLeaderboard();
 })();
