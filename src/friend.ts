@@ -66,9 +66,6 @@ export default class Friend {
         && distanceFromObstacle <= 0
         && obstacle.lane === this.currentLane
       ) {
-        console.log(xRight);
-        console.log(obstacle.x);
-        console.log(distanceFromObstacle);
         return true;
       }
     }
@@ -78,7 +75,7 @@ export default class Friend {
 
   passedObstacle(obstacle: Obstacle | undefined) {
     if (this.currentImageInAnimation !== null && obstacle !== undefined) {
-      const distanceFromObstacle = this.xPos - (obstacle.x + obstacle.w);
+      const distanceFromObstacle = this.xPos - (obstacle.x + (obstacle.w ?? 0));
       if (distanceFromObstacle > 0 && obstacle.lane !== this.currentLane && !obstacle.isPassed) {
         obstacle.isPassed = true;
         return true;

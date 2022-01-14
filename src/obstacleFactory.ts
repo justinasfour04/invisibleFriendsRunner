@@ -1,6 +1,8 @@
-import Cone from './cone';
 import { LanePositionsTypes } from './constant';
+import Hood from './hoods';
 import Obstacle from './obstacle';
+import Roller from './rollers';
+import { randomNumber } from './util';
 
 const OBSTACLE_SPACING = 270;
 
@@ -24,13 +26,15 @@ export default class ObstacleFactory {
   create(lane: LanePositionsTypes, acceleration: number) {
     if (this.ctx !== null) {
       if (this.queues.get(lane) !== undefined) {
-        const cone = new Cone(this.ctx, lane, this.lanePositions[lane], acceleration);
+        const obstacle = randomNumber(0, 1000) % 2 === 0
+          ? new Hood(this.ctx, lane, this.lanePositions[lane], acceleration)
+          : new Roller(this.ctx, lane, this.lanePositions[lane], acceleration);
         const queue = this.queues.get(lane) as Obstacle[];
 
         const allObstacles = [...this.queues.values()].flat();
         const maxX = Math.max(...allObstacles.map((o) => o.x));
-        if (cone.x - maxX >= OBSTACLE_SPACING) {
-          queue.push(cone);
+        if (obstacle.x - maxX >= OBSTACLE_SPACING) {
+          queue.push(obstacle);
         }
       }
     }
@@ -69,7 +73,7 @@ export default class ObstacleFactory {
 
   deleteOldestObstacles() {
     [...this.queues.values()].flat().forEach((obstacle) => {
-      if (obstacle.x < -obstacle.w) {
+      if (obstacle.x < -(obstacle.w ?? 0)) {
         this.queues.get(obstacle.lane)?.shift();
       }
     });

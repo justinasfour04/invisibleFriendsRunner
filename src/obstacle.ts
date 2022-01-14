@@ -1,23 +1,39 @@
-import { LanePositionsTypes } from './constant';
+import { FRAME_COUNT, LanePositionsTypes, SPRITE_HEIGHT } from './constant';
 
 export default abstract class Obstacle {
   private xPos: number | undefined;
 
   private passed: boolean;
 
+  protected currentFrame = 0;
+
+  protected currentImageInAnimation: ImageBitmap | null;
+
+  protected lastTimeDrawn: number | undefined;
+
   constructor(
     protected ctx: CanvasRenderingContext2D,
-    private width: number,
     private dx: number,
     private currentLane: LanePositionsTypes,
     private yPos: number,
+    protected sprites: ImageBitmap[],
   ) {
     this.xPos = ctx?.canvas.width;
     this.passed = false;
+    this.currentImageInAnimation = null;
   }
 
   get w() {
-    return this.width;
+    if (this.currentImageInAnimation) {
+      const scaleFactor = this.currentImageInAnimation.height / SPRITE_HEIGHT;
+      const spriteFrame = this.currentFrame % FRAME_COUNT;
+      const [startingX, endingX] = this.hitbox[spriteFrame];
+      const xLeft = this.x + (startingX * scaleFactor);
+      const xRight = this.x + (endingX * scaleFactor);
+      return xRight - xLeft;
+    }
+
+    return 0;
   }
 
   get x() {
@@ -56,6 +72,7 @@ export default abstract class Obstacle {
     this.passed = isPassed;
   }
 
+  abstract get hitbox(): number[][];
   abstract draw(): void;
   abstract update(secondsPassed: number): void;
 }

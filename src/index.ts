@@ -2,6 +2,8 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import '../static/stylesheet/index.css';
 import { LanePositionsTypes } from './constant';
 
+import BGM from '../static/sound/BGM.wav';
+
 import GameMenu from './pages/GameMenu.html';
 import GameMenuNameSaved from './pages/GameMenuNameSaved.html';
 import GameOverScreen from './pages/GameOverScreen.html';
@@ -37,11 +39,16 @@ const controller = new Controller(canvas, moveUp, moveDown);
 const friend = new Friend(ctx, lanePositions);
 const gameBackgroud = new GameBackground(ctx, [0, canvas.width]);
 const obstacleFactory = new ObstacleFactory(ctx, lanePositions);
+const backgroundMusic = new Audio(BGM);
+backgroundMusic.loop = true;
 
 let then: number;
 let elapsed: number;
 let speedUpTimeStart: number;
 let acceleration = 0;
+
+// const url = 'https://lit-shelf-93432.herokuapp.com';
+const url = 'http://localhost:5000';
 
 async function saveHighscore() {
   const playerName = localStorage.getItem('playername');
@@ -49,12 +56,13 @@ async function saveHighscore() {
   localStorage.setItem('highscore', highscore.toString(10));
   if (playerName) {
     await fetch(
-      'https://lit-shelf-93432.herokuapp.com/scores',
+      `${url}/scores`,
       {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
+        mode: 'no-cors',
         body: JSON.stringify({
           playerName,
           score: highscore,
@@ -67,7 +75,7 @@ async function saveHighscore() {
 async function initializeHighscore() {
   const playerName = localStorage.getItem('playername');
   const getRequest = await fetch(
-    `https://lit-shelf-93432.herokuapp.com/scores/${playerName}`,
+    `${url}/scores/${playerName}`,
     {
       method: 'GET',
       headers: {
@@ -205,6 +213,7 @@ function drawGameScreen() {
   const container = document.getElementById('app');
   if (container !== null) {
     container.innerHTML = '';
+    backgroundMusic.play();
 
     const scoreDiv = document.createElement('div');
     scoreDiv.className = 'score';
@@ -234,7 +243,7 @@ function drawGameScreen() {
 }
 
 async function drawLeaderboard() {
-  const response = await fetch('https://lit-shelf-93432.herokuapp.com/scores', {
+  const response = await fetch(`${url}/scores`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -495,6 +504,7 @@ async function mainLoop(frameTime?: number) {
       }
 
       if (youCrashed()) {
+        backgroundMusic.pause();
         await saveHighscore();
         resetGame();
         gameState.isGameOver = true;
@@ -529,29 +539,8 @@ async function mainLoop(frameTime?: number) {
   }
 }
 
-// async function populateLeaderboard() {
-//   const local = 'http://localhost:5000';
-//   // const prod = 'https://lit-shelf-93432.herokuapp.com';
-//   await Promise.all(Array.from({ length: 100 }, () => {
-//     const name = faker.name.firstName();
-//     const score = randomNumber(0, 1000);
-//     return fetch(`${local}/scores`, {
-//       method: 'POST',
-//       headers: {
-//         'Content-Type': 'application/json',
-//       },
-//       body: JSON.stringify({
-//         playerName: name,
-//         score,
-//       }),
-//     });
-//   }));
-// }
-
 (async () => {
   await ImageCache.loadAllImages(canvas);
   await mainLoop();
   // await mainLoopOnlyGame();
-  // await populateLeaderboard();
-  // await drawLeaderboard();
 })();
