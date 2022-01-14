@@ -83,6 +83,26 @@ async function initializeHighscore() {
   }
 }
 
+function addLeaderboardEventListener() {
+  const leaderboardButton = document.querySelector('[leaderboard]');
+  if (leaderboardButton) {
+    leaderboardButton.addEventListener('click', () => {
+      drawLeaderboard();
+    });
+
+    leaderboardButton.addEventListener('touchstart', (event) => {
+      event.preventDefault();
+    });
+    leaderboardButton.addEventListener('touchmove', (event) => {
+      event.preventDefault();
+    });
+    leaderboardButton.addEventListener('touchend', (event) => {
+      event.preventDefault();
+      drawLeaderboard();
+    });
+  }
+}
+
 function addStartAndLeaderboardEventListener() {
   const startButton = document.querySelector('[start]');
   if (startButton) {
@@ -295,18 +315,22 @@ function drawGameMenu() {
   const container = document.getElementById('app') as HTMLDivElement;
   if (container !== null) {
     container.innerHTML = gameState.playerName ? GameMenuNameSaved : GameMenu;
-    addStartAndLeaderboardEventListener();
     if (!gameState.playerName) {
+      addLeaderboardEventListener();
       const submitButton = document.getElementById('submitScore');
       const playerName = document.getElementById('playername') as HTMLInputElement;
-      if (submitButton) {
-        submitButton.addEventListener('click', async () => {
-          localStorage.setItem('playername', playerName.value);
-          await initializeHighscore();
-          container.innerHTML = GameMenuNameSaved;
-          drawWithNamePicked(container, playerName.value);
-        });
 
+      const submitCallback = async () => {
+        localStorage.setItem('playername', playerName.value);
+        gameState.playerName = playerName.value;
+        await initializeHighscore();
+        container.innerHTML = GameMenuNameSaved;
+        addStartAndLeaderboardEventListener();
+        drawWithNamePicked(container, playerName.value);
+      };
+
+      if (submitButton) {
+        submitButton.addEventListener('click', submitCallback);
         submitButton.addEventListener('touchstart', (event) => {
           event.preventDefault();
         });
@@ -315,16 +339,11 @@ function drawGameMenu() {
         });
         submitButton.addEventListener('touchend', async (event) => {
           event.preventDefault();
-          localStorage.setItem('playername', playerName.value);
-          await initializeHighscore();
-          container.innerHTML = GameMenuNameSaved;
-          const startText = document.getElementById('start-text');
-          if (startText) {
-            startText.textContent = `${playerName.value}, Tap start to begin your journey`;
-          }
+          await submitCallback();
         });
       }
     } else {
+      addStartAndLeaderboardEventListener();
       drawWithNamePicked(container, gameState.playerName);
     }
   }
