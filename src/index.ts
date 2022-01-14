@@ -47,8 +47,7 @@ let elapsed: number;
 let speedUpTimeStart: number;
 let acceleration = 0;
 
-// const url = 'https://lit-shelf-93432.herokuapp.com';
-const url = 'http://localhost:5000';
+const url = 'https://lit-shelf-93432.herokuapp.com';
 
 async function saveHighscore() {
   const playerName = localStorage.getItem('playername');
@@ -62,7 +61,6 @@ async function saveHighscore() {
         headers: {
           'Content-Type': 'application/json',
         },
-        mode: 'no-cors',
         body: JSON.stringify({
           playerName,
           score: highscore,
@@ -249,7 +247,7 @@ async function drawLeaderboard() {
       'Content-Type': 'application/json',
     },
   });
-  let results: { player_name: string, score: string }[] = [];
+  let results: { player_name: string, score: number }[] = [];
   ({
     results,
   } = await response.json());
@@ -278,12 +276,13 @@ async function drawLeaderboard() {
 
     container.style.width = '100%';
     const board = document.getElementById('board');
+    results.sort((a, b) => b.score - a.score);
     for (const player of results) {
       const tr = document.createElement('tr');
       const playerName = document.createElement('td');
       playerName.textContent = player.player_name;
       const score = document.createElement('td');
-      score.textContent = player.score;
+      score.textContent = player.score.toString(10);
       tr.appendChild(playerName);
       tr.appendChild(score);
       board?.appendChild(tr);
@@ -353,6 +352,7 @@ function drawGameMenu() {
       }
     } else {
       addStartAndLeaderboardEventListener();
+      initializeHighscore();
       drawWithNamePicked(container, gameState.playerName);
     }
   }
@@ -504,7 +504,6 @@ async function mainLoop(frameTime?: number) {
       }
 
       if (youCrashed()) {
-        backgroundMusic.pause();
         await saveHighscore();
         resetGame();
         gameState.isGameOver = true;
@@ -523,6 +522,7 @@ async function mainLoop(frameTime?: number) {
     } else if (gameState.isGameOver) {
       if (!gameState.isGameOverDrawn) {
         drawGameOverScreen();
+        backgroundMusic.pause();
         gameState.isGameOverDrawn = true;
       }
     } else if (gameState.isInMenu) {
