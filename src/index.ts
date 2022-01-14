@@ -3,6 +3,7 @@ import '../static/stylesheet/index.css';
 import { LanePositionsTypes } from './constant';
 
 import GameMenu from './pages/GameMenu.html';
+import GameMenuNameSaved from './pages/GameMenuNameSaved.html';
 import GameOverScreen from './pages/GameOverScreen.html';
 import LeaderBoard from './pages/LeaderBoard.html';
 
@@ -43,7 +44,98 @@ let speedUpTimeStart: number;
 let acceleration = 0;
 
 async function saveHighscore() {
-  localStorage.setItem('highscore', Math.max(gameState.score, gameState.highscore).toString(10));
+  const playerName = localStorage.getItem('playername');
+  const highscore = Math.max(gameState.score, gameState.highscore);
+  localStorage.setItem('highscore', highscore.toString(10));
+  if (playerName) {
+    await fetch(
+      'https://lit-shelf-93432.herokuapp.com/scores',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          playerName,
+          score: highscore,
+        }),
+      },
+    );
+  }
+}
+
+async function initializeHighscore() {
+  const playerName = localStorage.getItem('playername');
+  const getRequest = await fetch(
+    `https://lit-shelf-93432.herokuapp.com/scores/${playerName}`,
+    {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    },
+  );
+  const {
+    results,
+  } = await getRequest.json() as { results: [{ player_name: string; score: number }] };
+  if (results.length) {
+    gameState.highscore = results[0].score;
+  }
+}
+
+function addStartAndLeaderboardEventListener() {
+  const startButton = document.querySelector('[start]');
+  if (startButton) {
+    startButton.addEventListener('mouseover', () => {
+      startButton.textContent = 'BING BONG';
+    });
+    startButton.addEventListener('mouseleave', () => {
+      startButton.textContent = 'START';
+    });
+    startButton.addEventListener('click', () => {
+      gameState.isGameMenuDrawn = false;
+      gameState.isGameScreenDrawn = false;
+      gameState.isGameOverDrawn = false;
+      gameState.isInMenu = false;
+      gameState.isGameRunning = true;
+      gameState.isGameOver = false;
+    });
+
+    startButton.addEventListener('touchstart', (event) => {
+      event.preventDefault();
+      startButton.textContent = 'BING BONG';
+    });
+    startButton.addEventListener('touchmove', (event) => {
+      event.preventDefault();
+    });
+    startButton.addEventListener('touchend', (event) => {
+      event.preventDefault();
+      gameState.isGameMenuDrawn = false;
+      gameState.isGameScreenDrawn = false;
+      gameState.isGameOverDrawn = false;
+      gameState.isInMenu = false;
+      gameState.isGameRunning = true;
+      gameState.isGameOver = false;
+    });
+  }
+
+  const leaderboardButton = document.querySelector('[leaderboard]');
+  if (leaderboardButton) {
+    leaderboardButton.addEventListener('click', () => {
+      drawLeaderboard();
+    });
+
+    leaderboardButton.addEventListener('touchstart', (event) => {
+      event.preventDefault();
+    });
+    leaderboardButton.addEventListener('touchmove', (event) => {
+      event.preventDefault();
+    });
+    leaderboardButton.addEventListener('touchend', (event) => {
+      event.preventDefault();
+      drawLeaderboard();
+    });
+  }
 }
 
 function update(secondsPassed: number = 1) {
@@ -136,6 +228,25 @@ async function drawLeaderboard() {
   const container = document.getElementById('app');
   if (container !== null) {
     container.innerHTML = LeaderBoard;
+
+    const goBackButton = document.getElementById('leaderboardBack');
+    if (goBackButton) {
+      goBackButton.addEventListener('click', () => {
+        drawGameMenu();
+      });
+
+      goBackButton.addEventListener('touchstart', (event) => {
+        event.preventDefault();
+      });
+      goBackButton.addEventListener('touchmove', (event) => {
+        event.preventDefault();
+      });
+      goBackButton.addEventListener('touchend', (event) => {
+        event.preventDefault();
+        drawGameMenu();
+      });
+    }
+
     container.style.width = '100%';
     const board = document.getElementById('board');
     for (const player of results) {
@@ -151,62 +262,70 @@ async function drawLeaderboard() {
   }
 }
 
+function drawWithNamePicked(container: HTMLDivElement, playerName: string) {
+  const startText = document.getElementById('start-text');
+  if (startText) {
+    startText.innerHTML = `<span><b style="color: green;">${playerName}</b> Are you ready to begin your journey?</span>`;
+  }
+
+  const newNameButton = document.getElementById('new-name') as HTMLButtonElement;
+  if (newNameButton) {
+    newNameButton.addEventListener('click', () => {
+      localStorage.setItem('playername', '');
+      gameState.playerName = undefined;
+      drawGameMenu();
+    });
+
+    newNameButton.addEventListener('touchstart', (event) => {
+      event.preventDefault();
+    });
+    newNameButton.addEventListener('touchmove', (event) => {
+      event.preventDefault();
+    });
+    newNameButton.addEventListener('touchend', (event) => {
+      event.preventDefault();
+      localStorage.setItem('playername', '');
+      gameState.playerName = undefined;
+      drawGameMenu();
+    });
+  }
+}
+
 function drawGameMenu() {
-  const container = document.getElementById('app');
+  const container = document.getElementById('app') as HTMLDivElement;
   if (container !== null) {
-    container.innerHTML = GameMenu;
+    container.innerHTML = gameState.playerName ? GameMenuNameSaved : GameMenu;
+    addStartAndLeaderboardEventListener();
+    if (!gameState.playerName) {
+      const submitButton = document.getElementById('submitScore');
+      const playerName = document.getElementById('playername') as HTMLInputElement;
+      if (submitButton) {
+        submitButton.addEventListener('click', async () => {
+          localStorage.setItem('playername', playerName.value);
+          await initializeHighscore();
+          container.innerHTML = GameMenuNameSaved;
+          drawWithNamePicked(container, playerName.value);
+        });
 
-    const startButton = document.querySelector('[start]');
-    if (startButton) {
-      startButton.addEventListener('mouseover', () => {
-        startButton.textContent = 'BING BONG';
-      });
-      startButton.addEventListener('mouseleave', () => {
-        startButton.textContent = 'START';
-      });
-      startButton.addEventListener('click', () => {
-        gameState.isGameMenuDrawn = false;
-        gameState.isGameScreenDrawn = false;
-        gameState.isGameOverDrawn = false;
-        gameState.isInMenu = false;
-        gameState.isGameRunning = true;
-        gameState.isGameOver = false;
-      });
-
-      startButton.addEventListener('touchstart', (event) => {
-        event.preventDefault();
-        startButton.textContent = 'BING BONG';
-      });
-      startButton.addEventListener('touchmove', (event) => {
-        event.preventDefault();
-      });
-      startButton.addEventListener('touchend', (event) => {
-        event.preventDefault();
-        gameState.isGameMenuDrawn = false;
-        gameState.isGameScreenDrawn = false;
-        gameState.isGameOverDrawn = false;
-        gameState.isInMenu = false;
-        gameState.isGameRunning = true;
-        gameState.isGameOver = false;
-      });
-    }
-
-    const leaderboardButton = document.querySelector('[leaderboard]');
-    if (leaderboardButton) {
-      leaderboardButton.addEventListener('click', () => {
-        drawLeaderboard();
-      });
-
-      leaderboardButton.addEventListener('touchstart', (event) => {
-        event.preventDefault();
-      });
-      leaderboardButton.addEventListener('touchmove', (event) => {
-        event.preventDefault();
-      });
-      leaderboardButton.addEventListener('touchend', (event) => {
-        event.preventDefault();
-        drawLeaderboard();
-      });
+        submitButton.addEventListener('touchstart', (event) => {
+          event.preventDefault();
+        });
+        submitButton.addEventListener('touchmove', (event) => {
+          event.preventDefault();
+        });
+        submitButton.addEventListener('touchend', async (event) => {
+          event.preventDefault();
+          localStorage.setItem('playername', playerName.value);
+          await initializeHighscore();
+          container.innerHTML = GameMenuNameSaved;
+          const startText = document.getElementById('start-text');
+          if (startText) {
+            startText.textContent = `${playerName.value}, Tap start to begin your journey`;
+          }
+        });
+      }
+    } else {
+      drawWithNamePicked(container, gameState.playerName);
     }
   }
 }
@@ -247,6 +366,34 @@ function drawGameOverScreen() {
         gameState.isGameOverDrawn = false;
         gameState.isInMenu = false;
         gameState.isGameRunning = true;
+        gameState.isGameOver = false;
+      });
+    }
+
+    const mainmenuButton = document.getElementById('main-menu');
+    if (mainmenuButton) {
+      mainmenuButton.addEventListener('click', () => {
+        gameState.isGameMenuDrawn = false;
+        gameState.isGameScreenDrawn = false;
+        gameState.isGameOverDrawn = false;
+        gameState.isInMenu = true;
+        gameState.isGameRunning = false;
+        gameState.isGameOver = false;
+      });
+
+      mainmenuButton.addEventListener('touchstart', (event) => {
+        event.preventDefault();
+      });
+      mainmenuButton.addEventListener('touchmove', (event) => {
+        event.preventDefault();
+      });
+      mainmenuButton.addEventListener('touchend', (event) => {
+        event.preventDefault();
+        gameState.isGameMenuDrawn = false;
+        gameState.isGameScreenDrawn = false;
+        gameState.isGameOverDrawn = false;
+        gameState.isInMenu = true;
+        gameState.isGameRunning = false;
         gameState.isGameOver = false;
       });
     }

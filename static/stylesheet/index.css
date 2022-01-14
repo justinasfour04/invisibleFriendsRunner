@@ -32,6 +32,44 @@ canvas {
   width: 50%;
 }
 
+#leaderboardBack {
+  font-size: 0.5rem;
+  margin: 0;
+}
+
+#leaderboardText {
+  flex-basis: 75%;
+  text-align: center;
+  font-size: 3rem;
+  margin: 0;
+}
+
+.action_button_sm {
+  background: #fff;
+  backface-visibility: hidden;
+  border-radius: .5rem;
+  border-style: solid;
+  border-width: .125rem;
+  box-sizing: border-box;
+  color: #212121;
+  cursor: pointer;
+  display: inline-block;
+  font-family: 'Heebo';
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.3;
+  padding: .875rem 1.125rem;
+  position: relative;
+  text-decoration: none;
+  transform: translateZ(0) scale(1);
+  transition: transform .2s;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  margin: 0 3rem;
+  width: 5rem;
+}
+
 .action_button {
   background: #fff;
   backface-visibility: hidden;
@@ -58,19 +96,23 @@ canvas {
   width: 20rem;
 }
 
+.action_button_sm:not(:disabled):hover,
 .action_button:not(:disabled):hover {
   transform: scale(1.05);
 }
 
+.action_button_sm:not(:disabled):hover:active,
 .action_button:not(:disabled):hover:active {
   transform: scale(1.05) translateY(.125rem);
 }
 
+.action_button_sm:focus,
 .action_button:focus {
   outline: 0 solid transparent;
 }
 
-.action_button:focus:before {
+.action_button_sm:focus::before,
+.action_button:focus::before {
   content: "";
   left: calc(-1*.375rem);
   pointer-events: none;
@@ -80,14 +122,16 @@ canvas {
   user-select: none;
 }
 
+.action_button_sm:focus:not(:focus-visible),
 .action_button:focus:not(:focus-visible) {
   outline: 0 solid transparent;
 }
 
+.action_button_sm:focus:not(:focus-visible):before,
 .action_button:focus:not(:focus-visible):before {
   border-width: 0;
 }
-
+.action_button_sm:not(:disabled):active,
 .action_button:not(:disabled):active {
   transform: translateY(.125rem);
 }
