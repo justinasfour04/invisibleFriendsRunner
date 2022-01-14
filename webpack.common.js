@@ -6,11 +6,15 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.wav$/,
+        test: /\.(wav|mp3)$/,
         loader: 'file-loader',
       },
       {
-        test: /\.(png|svg|jpg|jpeg|gif)$/i,
+        test: /\.(gif)$/i,
+        type: 'asset/inline',
+      },
+      {
+        test: /\.(png|svg|jpg|jpeg)$/i,
         type: 'asset/resource',
       },
       {

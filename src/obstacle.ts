@@ -1,7 +1,7 @@
 import { FRAME_COUNT, LanePositionsTypes, SPRITE_HEIGHT } from './constant';
 
 export default abstract class Obstacle {
-  private xPos: number | undefined;
+  protected xPos: number | undefined;
 
   private passed: boolean;
 
@@ -15,7 +15,7 @@ export default abstract class Obstacle {
     protected ctx: CanvasRenderingContext2D,
     private dx: number,
     private currentLane: LanePositionsTypes,
-    private yPos: number,
+    protected yPos: number,
     protected sprites: ImageBitmap[],
   ) {
     this.xPos = ctx?.canvas.width;
@@ -37,6 +37,14 @@ export default abstract class Obstacle {
   }
 
   get x() {
+    if (this.currentImageInAnimation) {
+      const scaleFactor = this.currentImageInAnimation.height / SPRITE_HEIGHT;
+      const spriteFrame = this.currentFrame % FRAME_COUNT;
+      const [startingX] = this.hitbox[spriteFrame];
+      const xLeft = this.xPos as number + (startingX * scaleFactor);
+      return xLeft;
+    }
+
     return this.xPos as number;
   }
 

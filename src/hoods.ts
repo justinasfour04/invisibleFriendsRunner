@@ -1,7 +1,7 @@
 import {
   FRAME_COUNT,
   LanePositionsTypes,
-  OBSTACLE_HEIGHT,
+  // OBSTACLE_HEIGHT,
 } from './constant';
 import ImageCache, { CacheKey } from './imageCache';
 import Obstacle from './obstacle';
@@ -29,6 +29,7 @@ export default class Hood extends Obstacle {
       ImageCache.getImage(randomNumber(6, 11) as CacheKey) as ImageBitmap[],
     );
     this.currentImageInAnimation = this.sprites[this.currentFrame % FRAME_COUNT];
+    this.yPos -= this.currentImageInAnimation.height;
 
     this.#hitbox = [
       [8, 28],
@@ -60,8 +61,8 @@ export default class Hood extends Obstacle {
       // const scaleFactor = this.currentImageInAnimation.height / OBSTACLE_HEIGHT;
       // const spriteFrame = this.currentFrame % FRAME_COUNT;
       // const [startingX, endingX] = this.hitbox[spriteFrame];
-      // const xLeft = this.x + (startingX * scaleFactor);
-      // const xRight = this.x + (endingX * scaleFactor);
+      // const xLeft = (this.xPos as number) + (startingX * scaleFactor);
+      // const xRight = (this.xPos as number) + (endingX * scaleFactor);
       // const hitboxWidth = xRight - xLeft;
 
       // this.ctx.beginPath();
@@ -69,20 +70,20 @@ export default class Hood extends Obstacle {
       // this.ctx.strokeStyle = 'white';
       // this.ctx.rect(
       //   xLeft,
-      //   this.y - this.currentImageInAnimation.height,
+      //   this.yPos,
       //   hitboxWidth,
       //   this.currentImageInAnimation.width,
       // );
       // this.ctx.stroke();
       this.ctx.drawImage(
         this.currentImageInAnimation as ImageBitmap,
-        this.x,
-        this.y - this.currentImageInAnimation.height,
+        this.xPos as number,
+        this.yPos,
       );
     }
   }
 
   update(secondsPassed: number = 1): void {
-    this.x += (this.velocity * secondsPassed);
+    (this.xPos as number) += (this.velocity * secondsPassed);
   }
 }

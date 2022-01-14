@@ -7,6 +7,8 @@ import {
 import ImageCache, { CacheKey } from './imageCache';
 import Keys from './keys';
 import Obstacle from './obstacle';
+import down from '../static/sound/down.mp3';
+import up from '../static/sound/up.mp3';
 
 const frameRate = 6;
 const frameDuration = 1000 / frameRate;
@@ -18,6 +20,9 @@ const HITBOX = [
   [24, 44],
   [24, 41],
 ];
+
+const upAudio = new Audio(up);
+const downAudio = new Audio(down);
 
 export default class Friend {
   private currentFrame = 0;
@@ -62,6 +67,7 @@ export default class Friend {
       const xRight = this.xPos + (endingX * scaleFactor);
       const hitboxWidth = xRight - xLeft;
       const distanceFromObstacle = obstacle.x - xRight;
+      console.log(distanceFromObstacle);
       if (distanceFromObstacle >= -hitboxWidth
         && distanceFromObstacle <= 0
         && obstacle.lane === this.currentLane
@@ -133,6 +139,7 @@ export default class Friend {
 
     if (buttonPressed.has(Keys.DOWN)) {
       if (!this.moved) {
+        downAudio.play();
         this.currentLane = this.currentLane + 1 >= LanePositionsTypes.BOTTOM + 1
           ? LanePositionsTypes.BOTTOM
           : this.currentLane + 1;
@@ -143,6 +150,7 @@ export default class Friend {
       if (!this.moved) {
         // const size = this.lanePositions.length;
         // this.currentLane = ((this.currentLane + size) - 1) % size;
+        upAudio.play();
         this.currentLane = this.currentLane - 1 <= LanePositionsTypes.TOP - 1
           ? LanePositionsTypes.TOP
           : this.currentLane - 1;

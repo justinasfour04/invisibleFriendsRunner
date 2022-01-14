@@ -52,7 +52,7 @@ export default class ImageCache {
       2560,
       706,
       {
-        resizeQuality: 'high',
+        resizeQuality: 'pixelated',
         resizeWidth: canvas.width + 60,
         resizeHeight: 13 * (canvas.height / 16),
       },
@@ -65,7 +65,7 @@ export default class ImageCache {
       397,
       189,
       {
-        resizeQuality: 'high',
+        resizeQuality: 'pixelated',
         resizeWidth: canvas.width + 60,
         resizeHeight: 13 * (canvas.height / 16),
       },
@@ -81,7 +81,7 @@ export default class ImageCache {
           SPRITE_WIDTH,
           SPRITE_HEIGHT,
           {
-            resizeQuality: 'high',
+            resizeQuality: 'pixelated',
             resizeHeight: (canvas.height / 3),
           },
         ),
@@ -98,7 +98,7 @@ export default class ImageCache {
           OBSTACLE_WIDTH,
           OBSTACLE_HEIGHT,
           {
-            resizeQuality: 'high',
+            resizeQuality: 'pixelated',
             resizeHeight: (canvas.height / 8),
           },
         ),
@@ -115,7 +115,7 @@ export default class ImageCache {
           OBSTACLE_WIDTH,
           OBSTACLE_HEIGHT,
           {
-            resizeQuality: 'high',
+            resizeQuality: 'pixelated',
             resizeHeight: (canvas.height / 8),
           },
         ),
@@ -132,7 +132,7 @@ export default class ImageCache {
           OBSTACLE_WIDTH,
           OBSTACLE_HEIGHT,
           {
-            resizeQuality: 'high',
+            resizeQuality: 'pixelated',
             resizeHeight: (canvas.height / 8),
           },
         ),
@@ -149,7 +149,7 @@ export default class ImageCache {
           OBSTACLE_WIDTH,
           OBSTACLE_HEIGHT,
           {
-            resizeQuality: 'high',
+            resizeQuality: 'pixelated',
             resizeHeight: (canvas.height / 8),
           },
         ),
@@ -166,7 +166,7 @@ export default class ImageCache {
           OBSTACLE_WIDTH,
           OBSTACLE_HEIGHT,
           {
-            resizeQuality: 'high',
+            resizeQuality: 'pixelated',
             resizeHeight: (canvas.height / 8),
           },
         ),
@@ -183,7 +183,7 @@ export default class ImageCache {
           OBSTACLE_WIDTH,
           OBSTACLE_HEIGHT,
           {
-            resizeQuality: 'high',
+            resizeQuality: 'pixelated',
             resizeHeight: (canvas.height / 8),
           },
         ),
@@ -200,7 +200,7 @@ export default class ImageCache {
           OBSTACLE_WIDTH,
           OBSTACLE_HEIGHT,
           {
-            resizeQuality: 'high',
+            resizeQuality: 'pixelated',
             resizeHeight: (canvas.height / 8),
           },
         ),
@@ -217,7 +217,7 @@ export default class ImageCache {
           OBSTACLE_WIDTH,
           OBSTACLE_HEIGHT,
           {
-            resizeQuality: 'high',
+            resizeQuality: 'pixelated',
             resizeHeight: (canvas.height / 8),
           },
         ),
@@ -234,7 +234,7 @@ export default class ImageCache {
           OBSTACLE_WIDTH,
           OBSTACLE_HEIGHT,
           {
-            resizeQuality: 'high',
+            resizeQuality: 'pixelated',
             resizeHeight: (canvas.height / 8),
           },
         ),
@@ -251,7 +251,7 @@ export default class ImageCache {
           OBSTACLE_WIDTH,
           OBSTACLE_HEIGHT,
           {
-            resizeQuality: 'high',
+            resizeQuality: 'pixelated',
             resizeHeight: (canvas.height / 8),
           },
         ),

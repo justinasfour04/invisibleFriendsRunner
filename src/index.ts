@@ -3,11 +3,14 @@ import '../static/stylesheet/index.css';
 import { LanePositionsTypes } from './constant';
 
 import BGM from '../static/sound/BGM.wav';
+import mysteryBGM from '../static/sound/mysteryBGM.mp3';
+import trip from '../static/sound/trip.mp3';
 
 import GameMenu from './pages/GameMenu.html';
 import GameMenuNameSaved from './pages/GameMenuNameSaved.html';
 import GameOverScreen from './pages/GameOverScreen.html';
 import LeaderBoard from './pages/LeaderBoard.html';
+import MainMenuImg from '../static/img/mainmenu.gif';
 
 import Controller from './controller';
 import Friend from './friend';
@@ -19,6 +22,7 @@ import { randomNumber } from './util';
 
 const canvas = document.createElement('canvas');
 const ctx = canvas.getContext('2d');
+(ctx as CanvasRenderingContext2D).imageSmoothingEnabled = false;
 canvas.width = (document.body.clientWidth / 1.1);
 canvas.height = (document.body.clientHeight / 1.2);
 
@@ -39,7 +43,10 @@ const controller = new Controller(canvas, moveUp, moveDown);
 const friend = new Friend(ctx, lanePositions);
 const gameBackgroud = new GameBackground(ctx, [0, canvas.width]);
 const obstacleFactory = new ObstacleFactory(ctx, lanePositions);
-const backgroundMusic = new Audio(BGM);
+const backgroundMusic = new Audio(mysteryBGM);
+const menuMusic = new Audio(BGM);
+menuMusic.loop = true;
+const gameoverSound = new Audio(trip);
 backgroundMusic.loop = true;
 
 let then: number;
@@ -323,6 +330,17 @@ function drawGameMenu() {
   const container = document.getElementById('app') as HTMLDivElement;
   if (container !== null) {
     container.innerHTML = gameState.playerName ? GameMenuNameSaved : GameMenu;
+
+    const menuimg = document.getElementById('menuimg') as HTMLImageElement;
+    const menuimgflip = document.getElementById('menuimgflip') as HTMLImageElement;
+    if (menuimg) {
+      menuimg.src = MainMenuImg;
+    }
+
+    if (menuimgflip) {
+      menuimgflip.src = MainMenuImg;
+    }
+
     if (!gameState.playerName) {
       addLeaderboardEventListener();
       const submitButton = document.getElementById('submitScore');
@@ -460,6 +478,7 @@ function resetGame() {
   acceleration = 0;
   gameState.score = 0;
   gameState.highscore = parseInt(localStorage.getItem('highscore') ?? '0', 10);
+  backgroundMusic.currentTime = 0;
   friend.reset();
   gameBackgroud.reset();
   obstacleFactory.reset();
@@ -501,6 +520,8 @@ async function mainLoop(frameTime?: number) {
         speedUpTimeStart = frameTime;
         drawGameScreen();
         gameState.isGameScreenDrawn = true;
+        menuMusic.currentTime = 0;
+        menuMusic.pause();
       }
 
       if (youCrashed()) {
@@ -508,6 +529,7 @@ async function mainLoop(frameTime?: number) {
         resetGame();
         gameState.isGameOver = true;
         gameState.isGameRunning = false;
+        gameoverSound.play();
       } else {
         setScore();
         obstacleFactory.deleteOldestObstacles();
@@ -522,13 +544,14 @@ async function mainLoop(frameTime?: number) {
     } else if (gameState.isGameOver) {
       if (!gameState.isGameOverDrawn) {
         drawGameOverScreen();
-        backgroundMusic.pause();
         gameState.isGameOverDrawn = true;
+        backgroundMusic.pause();
       }
     } else if (gameState.isInMenu) {
       if (!gameState.isGameMenuDrawn) {
         drawGameMenu();
         gameState.isGameMenuDrawn = true;
+        menuMusic.play();
       }
     }
 

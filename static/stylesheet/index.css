@@ -22,6 +22,12 @@ body::-webkit-scrollbar,
 canvas {
   border: 5px black solid;
   border-radius: 15px;
+  image-rendering: optimizeSpeed;             /* Older versions of FF          */
+  image-rendering: -moz-crisp-edges;          /* FF 6.0+                       */
+  image-rendering: -webkit-optimize-contrast; /* Safari                        */
+  image-rendering: -o-crisp-edges;            /* OS X & Windows Opera (12.02+) */
+  image-rendering: pixelated;                 /* Awesome future-browsers       */
+  -ms-interpolation-mode: nearest-neighbor;   /* IE                            */
 }
 
 .row {
@@ -30,6 +36,20 @@ canvas {
   align-items: center;
   justify-content: center;
   width: 50%;
+}
+
+#menuimgflip {
+  -webkit-transform: scaleX(-1);
+  transform: scaleX(-1);
+}
+
+#menuimgflip,
+#menuimg {
+  width: 30%;
+  margin: 0;
+  position: relative;
+  bottom: 9rem;
+  left: 16rem;
 }
 
 #leaderboardBack {
@@ -160,6 +180,7 @@ canvas {
 .titleText {
   font-size: 3rem;
   margin-bottom: 2.5rem;
+  text-align: center;
 }
 
 
