@@ -1,9 +1,10 @@
+
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../static/stylesheet/index.css';
 import { LanePositionsTypes } from './constant';
 
 import BGM from '../static/sound/BGM.wav';
-import mysteryBGM from '../static/sound/mysteryBGM.mp3';
+// import mysteryBGM from '../static/sound/mysteryBGM.mp3';
 import trip from '../static/sound/trip.mp3';
 
 import GameMenu from './pages/GameMenu.html';
@@ -43,11 +44,11 @@ const controller = new Controller(canvas, moveUp, moveDown);
 const friend = new Friend(ctx, lanePositions);
 const gameBackgroud = new GameBackground(ctx, [0, canvas.width]);
 const obstacleFactory = new ObstacleFactory(ctx, lanePositions);
-const backgroundMusic = new Audio(mysteryBGM);
+// const backgroundMusic = new Audio(mysteryBGM);
 const menuMusic = new Audio(BGM);
 menuMusic.loop = true;
 const gameoverSound = new Audio(trip);
-backgroundMusic.loop = true;
+// backgroundMusic.loop = true;
 
 let then: number;
 let elapsed: number;
@@ -57,43 +58,44 @@ let acceleration = 0;
 const url = 'https://lit-shelf-93432.herokuapp.com';
 
 async function saveHighscore() {
-  const playerName = localStorage.getItem('playername');
+  // const playerName = localStorage.getItem('playername');
   const highscore = Math.max(gameState.score, gameState.highscore);
   localStorage.setItem('highscore', highscore.toString(10));
-  if (playerName) {
-    await fetch(
-      `${url}/scores`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          playerName,
-          score: highscore,
-        }),
-      },
-    );
-  }
+  // if (playerName) {
+  //   await fetch(
+  //     `${url}/scores`,
+  //     {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify({
+  //         playerName,
+  //         score: highscore,
+  //       }),
+  //     },
+  //   );
+  // }
 }
 
 async function initializeHighscore() {
-  const playerName = localStorage.getItem('playername');
-  const getRequest = await fetch(
-    `${url}/scores/${playerName}`,
-    {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    },
-  );
-  const {
-    results,
-  } = await getRequest.json() as { results: [{ player_name: string; score: number }] };
-  if (results.length) {
-    gameState.highscore = results[0].score;
-  }
+  // const playerName = localStorage.getItem('playername');
+  gameState.highscore = parseInt(localStorage.getItem('highscore') ?? '0', 10);
+  // const getRequest = await fetch(
+  //   `${url}/scores/${playerName}`,
+  //   {
+  //     method: 'GET',
+  //     headers: {
+  //       'Content-Type': 'application/json',
+  //     },
+  //   },
+  // );
+  // const {
+  //   results,
+  // } = await getRequest.json() as { results: [{ player_name: string; score: number }] };
+  // if (results.length) {
+  //   gameState.highscore = results[0].score;
+  // }
 }
 
 function addLeaderboardEventListener() {
@@ -218,7 +220,7 @@ function drawGameScreen() {
   const container = document.getElementById('app');
   if (container !== null) {
     container.innerHTML = '';
-    backgroundMusic.play();
+    // backgroundMusic.play();
 
     const scoreDiv = document.createElement('div');
     scoreDiv.className = 'score';
@@ -298,6 +300,16 @@ async function drawLeaderboard() {
 }
 
 function drawWithNamePicked(container: HTMLDivElement, playerName: string) {
+  const menuimg = document.getElementById('menuimg') as HTMLImageElement;
+  const menuimgflip = document.getElementById('menuimgflip') as HTMLImageElement;
+  if (menuimg) {
+    menuimg.src = MainMenuImg;
+  }
+
+  if (menuimgflip) {
+    menuimgflip.src = MainMenuImg;
+  }
+
   const startText = document.getElementById('start-text');
   if (startText) {
     startText.innerHTML = `<span><b style="color: green;">${playerName}</b> Are you ready to begin your journey?</span>`;
@@ -349,7 +361,7 @@ function drawGameMenu() {
       const submitCallback = async () => {
         localStorage.setItem('playername', playerName.value);
         gameState.playerName = playerName.value;
-        await initializeHighscore();
+        initializeHighscore();
         container.innerHTML = GameMenuNameSaved;
         addStartAndLeaderboardEventListener();
         drawWithNamePicked(container, playerName.value);
@@ -478,35 +490,35 @@ function resetGame() {
   acceleration = 0;
   gameState.score = 0;
   gameState.highscore = parseInt(localStorage.getItem('highscore') ?? '0', 10);
-  backgroundMusic.currentTime = 0;
+  // backgroundMusic.currentTime = 0;
   friend.reset();
   gameBackgroud.reset();
   obstacleFactory.reset();
 }
 
-async function mainLoopOnlyGame(frameTime?: number) {
-  if (frameTime) {
-    if (!then) {
-      then = frameTime;
-    }
-    elapsed = (frameTime - then) / 1000;
+// async function mainLoopOnlyGame(frameTime?: number) {
+//   if (frameTime) {
+//     if (!then) {
+//       then = frameTime;
+//     }
+//     elapsed = (frameTime - then) / 1000;
 
-    if (!gameState.isGameScreenDrawn) {
-      drawGameScreen();
-      gameState.isGameScreenDrawn = true;
-    }
+//     if (!gameState.isGameScreenDrawn) {
+//       drawGameScreen();
+//       gameState.isGameScreenDrawn = true;
+//     }
 
-    setScore();
-    update(Math.min(elapsed, 0.1));
-    obstacleFactory.create(randomNumber(0, 1000) % 3, acceleration);
-    await draw();
+//     setScore();
+//     update(Math.min(elapsed, 0.1));
+//     obstacleFactory.create(randomNumber(0, 1000) % 3, acceleration);
+//     await draw();
 
-    then = frameTime;
-    window.requestAnimationFrame(mainLoopOnlyGame);
-  } else {
-    window.requestAnimationFrame(mainLoopOnlyGame);
-  }
-}
+//     then = frameTime;
+//     window.requestAnimationFrame(mainLoopOnlyGame);
+//   } else {
+//     window.requestAnimationFrame(mainLoopOnlyGame);
+//   }
+// }
 
 async function mainLoop(frameTime?: number) {
   if (frameTime) {
@@ -525,7 +537,7 @@ async function mainLoop(frameTime?: number) {
       }
 
       if (youCrashed()) {
-        await saveHighscore();
+        saveHighscore();
         resetGame();
         gameState.isGameOver = true;
         gameState.isGameRunning = false;
@@ -545,13 +557,13 @@ async function mainLoop(frameTime?: number) {
       if (!gameState.isGameOverDrawn) {
         drawGameOverScreen();
         gameState.isGameOverDrawn = true;
-        backgroundMusic.pause();
+        // backgroundMusic.pause();
       }
     } else if (gameState.isInMenu) {
       if (!gameState.isGameMenuDrawn) {
         drawGameMenu();
         gameState.isGameMenuDrawn = true;
-        menuMusic.play();
+        // menuMusic.play();
       }
     }
 
